@@ -10,7 +10,7 @@ def renderTemplate(handler, templatename, templatevalues) :
 
 class MainPage(webapp2.RequestHandler) :
   def get(self) :
-    renderTemplate(self,'static-login-page', {})
+    renderTemplate(self,'static-login-page.html', {})
 	
 class ProcessForm(webapp2.RequestHandler):
   def post(self):
