@@ -90,11 +90,13 @@ body{
     background-color: #E0E0E0;
 }
 #content #top-left #loc-info #stats{
-    background-color: #ffffff;
+    background-color: #FAFAFA;
     height: auto;
     height: 200px;
 }
-
+#content #top-left #loc-info #stats li{
+    padding-top: 10px;
+}
 
 
 #content #top-right{
@@ -150,6 +152,7 @@ body{
     width: 100px;
     vertical-align: middle;
     padding-top: 10px;
+    font-size: 80%;
 }
 #content #loc-comments .comment-info{
     display: inline-block;
@@ -193,8 +196,45 @@ body{
     height: 20px;
     background-color: #607D8B;
 }
+#content #center-xy{
+    width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 80px;
+    box-shadow:  0 2px 5px rgba(0,0,0,0.26);
+    background-color: #E0E0E0;
+    text-align: center;
+    height: auto;
+    margin-bottom: 80px;
+}
+#login-field{
+    height: 250px;
+}
+#login-field form{
+    text-align: left;
+    padding-top: 10px;
+    width: 400px;
+    margin-left: 150px;
+    font-weight: bolder;
 
+}
 
+#content a{
+    color: #607D8B;
+}
+#content a:hover{
+    color: #E0E0E0;
+}
+#registration-field{
+        height: 625px;
+}
+#registration-field form{
+    text-align: left;
+    padding-top: 10px;
+    width: 400px;
+    margin-left: 150px;
+    font-weight: bolder;
+}
 html,
 button,
 input,
