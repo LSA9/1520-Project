@@ -44,7 +44,7 @@
                 <div id="rt">
                     <div id="search">Search: <input class="srch" type="search"></div>
                     <div id="user">
-                        <a href="#">Please Login <i class="icon-user" style="font-size: 24pt;"></i></a>
+                        <a href="{{title_link}}">{{log}} <i class="icon-user" style="font-size: 24pt;"></i></a>
                     </div>
                 </div>
             </div>
@@ -53,13 +53,16 @@
             <div id="content">
                 <div id="center-xy">
                     <div id="login-field">
-                        <div class="title">Login<br><hr></div>
-                        <form>
+                        <div class="title">{{title}}<br><hr></div>          
+							<br>
+							<br>
+							<h1><a href={{link}}>{{message}}</a></h1>
+						<!--<form>
                             Username or Email<br><input type="text" name="username" /><br><br>
                             Password<br><input type="password" name="pswd"><br><br>
                         </form>
                         <a href="#">Register an Account</a> | <a href="#">Forgot Your Password?</a>
-                    </div>
+                    --></div>
                 </div>
             </div>
         </content>
