@@ -9,19 +9,22 @@
 /* ==========================================================================
    Base styles: opinionated defaults
    ========================================================================== */
-body{
+body {
     min-height: 100%;
     background-color: #FAFAFA;
+    height: 100vh;
 }
-#menu-bar{
+
+#menu-bar {
     height: 65px;
     width: 100%;
     background-color: #607D8B;
     display: inline-block;
-    box-shadow:  0 2px 5px rgba(0,0,0,0.26);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
     margin-bottom: 15px;
 }
-#menu-bar #logo{
+
+#menu-bar #logo {
     height: 60px;
     vertical-align: middle;
     font-size: 26pt;
@@ -33,116 +36,129 @@ body{
     color: #EFEBE9;
 
 }
-#menu-bar #link-list{
+
+#menu-bar #link-list {
     padding-top: 10px;
     display: inline-block;
 }
-#menu-bar #link-list ul{
+
+#menu-bar #link-list ul {
     list-style: none;
     display: inline-block;
 }
-#menu-bar #link-list li{
+
+#menu-bar #link-list li {
     list-style: none;
     display: inline-block;
     padding-left: 10px;
     color: #9e9e9e;
 }
-#menu-bar #search{
+
+#menu-bar #search {
     display: inline-block;
     margin-right: 10px;
+    margin-top: 25px;
     background-color: #EFEBE9;
-    box-shadow:  0 2px 5px rgba(0,0,0,0.26);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
     color: #9e9e9e;
+    z-index: 20;
+    position: relative;
 }
-#menu-bar .srch{
+
+#menu-bar .srch {
     background-color: #EFEBE9;
     border: none;
 }
-#menu-bar #user{
+
+#menu-bar #user {
     display: inline-block;
     padding-top: 10px;
     padding-right: 10px;
-}
-#menu-bar #rt{
     float: right;
 }
-#menu-bar a{
+
+#menu-bar #rt {
+    float: right;
+}
+
+#menu-bar a {
     text-decoration: none;
     color: #EFEBE9;
     font-weight: bold;
 }
-#menu-bar a:hover{
+
+#menu-bar a:hover {
     color: #9e9e9e;
 }
 
-#content{
-    padding-bottom: -20px;
+#content {
     background-color: #FAFAFA;
-    height: 100%;
+    height: 83%;
 }
-#content #top-left{
-    min-height: 300px;
+
+#content #top-left {
+    height: 45%;
     width: 45%;
-    box-shadow:  0 2px 5px rgba(0,0,0,0.26);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
     display: inline-block;
     margin-left: 2%;
     margin-right: 6%;
     background-color: #E0E0E0;
 }
-#content #top-left #loc-info #stats{
+
+#content #top-left #loc-info #stats {
     background-color: #FAFAFA;
-    height: auto;
-    height: 200px;
 }
-#content #top-left #loc-info #stats li{
+
+#content #top-left #loc-info #stats li {
     padding-top: 10px;
 }
 
-
-#content #top-right{
-    min-height: 300px;
+#content #top-right {
+    height: 45%;
     width: 45%;
-    box-shadow:  0 2px 5px rgba(0,0,0,0.26);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
     display: inline-block;
     margin-right: 2%;
-    float:right;
+    float: right;
     background-color: #E0E0E0;
 }
-#content #bottom-center{
-    min-height: 225px;
-    max-height: 225px;
+
+#content #bottom-center {
+    height: 45%;
     width: 96%;
-    box-shadow:  0 2px 5px rgba(0,0,0,0.26);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
     text-align: center;
     display: inline-block;
     margin-left: 2%;
     margin-top: 20px;
     background-color: #E0E0E0;
+}
+
+#content #loc-comments {
+    min-height: 80%;
     overflow-y: scroll;
 }
-#content #loc-comments ul{
-    padding-top: 80px;
+
+#content #loc-comments ul {
     text-align: left;
     list-style: none;
     margin: 0;
     padding-left: 0px;
-
 }
-#content #loc-comments li{
+
+#content #loc-comments li {
     height: 60px;
     padding: 0;
     margin: 0;
     border-width: thin;
     border: solid;
     border-color: rgba(130, 148, 148, 0.15);
-    box-shadow:  0 2px 5px rgba(0,0,0,0.26);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
     background-color: #ffffff;
 }
-#content #bottom-center .title{
-    position: absolute;
-    width: 96%;
-}
-#content #loc-comments .comment-user{
+
+#content #loc-comments .comment-user {
     display: inline-block;
     border-right: solid;
     border-right-width: 1px;
@@ -154,7 +170,8 @@ body{
     padding-top: 10px;
     font-size: 80%;
 }
-#content #loc-comments .comment-info{
+
+#content #loc-comments .comment-info {
     display: inline-block;
     font-size: small;
     border-right: inset;
@@ -167,7 +184,8 @@ body{
     color: #9e9e9e;
     padding-top: 10px;
 }
-#content #loc-comments .comment-content{
+
+#content #loc-comments .comment-content {
     display: inline-block;
     height: 60px;
     padding-right: 15px;
@@ -176,41 +194,44 @@ body{
     padding-top: 10px;
 }
 
-#content #loc-comments .comment{
+#content #loc-comments .comment {
     height: 60px;
 }
-.title{
+
+.title {
     font-size: 24pt;
     font-weight: lighter;
     color: #9e9e9e;
     text-align: center;
     background-color: #FAFAFA;
-    box-shadow:  0 1px 2px rgba(0,0,0,0.26);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.26);
     height: 70px;
 }
 
-#ftr{
+#ftr {
     position: relative;
-    height: 180px;
     clear: both;
     height: 20px;
     background-color: #607D8B;
 }
-#content #center-xy{
+
+#content #center-xy {
     width: 500px;
     margin-left: auto;
     margin-right: auto;
     margin-top: 80px;
-    box-shadow:  0 2px 5px rgba(0,0,0,0.26);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
     background-color: #E0E0E0;
     text-align: center;
     height: auto;
     margin-bottom: 80px;
 }
-#login-field{
+
+#login-field {
     height: 250px;
 }
-#login-field form{
+
+#login-field form {
     text-align: left;
     padding-top: 10px;
     width: 400px;
@@ -219,22 +240,96 @@ body{
 
 }
 
-#content a{
+#content a {
     color: #607D8B;
 }
-#content a:hover{
+
+#content a:hover {
     color: #E0E0E0;
 }
-#registration-field{
-        height: 625px;
+
+#registration-field {
+    height: 500px;
 }
-#registration-field form{
+
+#registration-field form {
     text-align: left;
     padding-top: 10px;
     width: 400px;
     margin-left: 150px;
     font-weight: bolder;
 }
+
+#location-creation-field {
+    height: 600px;
+}
+
+#location-creation-field form {
+    text-align: left;
+    padding-top: 10px;
+    font-weight: bolder;
+}
+
+#location-creation-map {
+    height: 100px;
+    width: 100%;
+    background-color: #fcfcfc;
+}
+
+#search-result-content {
+    color: #444444;
+}
+
+#search-result {
+    z-index: 100;
+    color: #444444;
+}
+
+#search-result hr {
+    padding: 0;
+    width: 100%;
+    color: #EFEBE9;
+}
+
+#search-result ul {
+    padding-top: 0;
+    padding-left: 0;
+}
+
+#search-result li {
+    list-style: none;
+}
+
+#search-content {
+    padding: 20px;
+}
+
+#search-result a {
+    padding: 20px;
+    color: #444444;
+    list-style: none;
+}
+
+#search-field {
+    text-overflow: ellipsis;
+}
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 400px;
+    line-height: 300px;
+    height: 300px;
+    margin-left: -175px;
+    margin-top: -200px;
+    background-color: #d3d3d3;
+    text-align: center;
+    border-radius: 5px;
+    z-index: 10;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+}
+
 html,
 button,
 input,
@@ -324,22 +419,6 @@ textarea {
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* ==========================================================================
    Helper classes
@@ -453,9 +532,9 @@ textarea {
 }
 
 @media print,
-       (-o-min-device-pixel-ratio: 5/4),
-       (-webkit-min-device-pixel-ratio: 1.25),
-       (min-resolution: 120dpi) {
+(-o-min-device-pixel-ratio: 5/4),
+(-webkit-min-device-pixel-ratio: 1.25),
+(min-resolution: 120dpi) {
     /* Style adjustments for high resolution devices */
 }
 
@@ -488,7 +567,6 @@ textarea {
     /*
      * Don't show links for images, or javascript/internal links
      */
-
     .ir a:after,
     a[href^="javascript:"]:after,
     a[href^="#"]:after {
