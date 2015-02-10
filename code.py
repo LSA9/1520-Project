@@ -3,28 +3,27 @@ import webapp2
 from google.appengine.ext.webapp import template
 
 
-def render_template(handler, templatename, templatevalues) :
-  path = os.path.join(os.path.dirname(__file__), 'templates/' + templatename)
-  html = template.render(path, templatevalues)
-  handler.response.out.write(html)
+def renderTemplate(handler, templatename, templatevalues) :
+    path = os.path.join(os.path.dirname(__file__), 'templates/' + templatename)
+    html = template.render(path, templatevalues)
+    handler.response.out.write(html)
 
-  
+
 class MainPage(webapp2.RequestHandler) :
-  def post(self):
-    self.response.out.write('<HTML><BODY>Hello, that\'s a post</BODY></HTML>')
-    
-  def get(self):
-    name = "Mr. Cui"
-    template_params = {
-      "name": name
-    }
-    render_template(self, 'index.html', template_params)
-    
+    def get(self) :
+        renderTemplate(self,'static-login-page.html', {})
+
+
+class ProcessForm(webapp2.RequestHandler):
+    def post(self):
+        name = self.request.get('name')
+        color = self.request.get('color')
+        renderTemplate(self, 'formresult.html', {
+        "name": name,
+        "color": color
+        })
 
 app = webapp2.WSGIApplication([
-  ('/', MainPage)
-])
-
-
-
-
+                                  ('/', MainPage),
+                                  ('/processform',ProcessForm)
+                              ], debug=True)
