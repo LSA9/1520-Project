@@ -2,124 +2,198 @@
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
-        <meta name="description" content="Location based, crowd reporting system">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="../css/1502.css">
-        <link rel="stylesheet" href="../css/normalize.css">
-        <link rel="stylesheet" href="../css/main.css">
-        <script src="../js/vendor/modernizr-2.6.2.min.js"></script>
-    </head>
-    <body>
-        <!--[if lt IE 7]>
+<!--[if gt IE 8]><!-->
+<html class="no-js"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="Location based, crowd reporting system">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../css/1502.css">
+    <link rel="stylesheet" href="../css/normalize.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <script src="../js/vendor/modernizr-2.6.2.min.js"></script>
+</head>
+<body>
+<!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
 
-        <!-- Add your site or application content here -->
-        <header>
-            <div id="menu-bar">
-                <div id="logo">
-                    <i class="icon-users" style="font-size: 36pt;"></i> Gaggle
+<!-- Add your site or application content here -->
+<header>
+    <div id="menu-bar">
+        <div id="logo">
+            <i class="icon-users" style="font-size: 36pt;"></i> Gaggle
+        </div>
+        <div id="link-list">
+            <ul>
+                <li>
+                    <a href="#">ABOUT</a>
+                </li>
+                <li>|</li>
+                <li>
+                    <a href="#">AROUND</a>
+                </li>
+                <li>|</li>
+                <li>
+                    <a href="#">ADD</a>
+                </li>
+            </ul>
+        </div>
+        <div id="rt">
+            <div id="search">
+                Search: <input class="srch" id="search-bar" type="search"><br/>
+                <span id="search-result"></span>
+            </div>
+            <div id="user" title="{{ name }}">
+                <a href="#">Logout<i class="icon-user" style="font-size: 24pt;"></i></a>
+            </div>
+        </div>
+    </div>
+</header>
+<content>
+    <div id="content">
+        <div id="top-left">
+            <div id="loc-info">
+                <div class="title">Chipotle<br>
+                    <hr>
                 </div>
-                <div id="link-list">
+                <div id="stats">
                     <ul>
-                       <li>
-                           <a href="#">ABOUT</a>
-                       </li>
-                        <li>|</li>
-                        <li>
-                            <a href="#">AROUND</a>
+                        <li><strong>Crowd Level: </strong>
+
+                            <div id="crd-lvl" style="display: inline;font-weight: bolder;">9</div>
+
                         </li>
-                        <li>|</li>
-                        <li>
-                            <a href="#">ADD</a>
+                        <li><strong>Last Updated: </strong> 3:24 pm 2/3/2015</li>
+                        <li><strong>Typical Crowd Level: </strong>
+                            <div id="crd-lvl-typical" style="display: inline;font-weight: bolder;color: red;">9</div>
                         </li>
+                        <!--Added by Leonard Aronson 2-8-2015-->
+                        <button class="my_popup_open" style="margin-left: 20px">Update</button>
+                        <div id="my_popup">
+                            <div class="modal">
+                                <form method="POST">
+                                    How low can you go?
+                                    <input id="crowd-slide" type="range" width="100px" step="1" max="10" min="0" value="5"/>
+                                    <span id="range">5</span><br>
+                                    <input type="submit" value="Submit">
+                                </form>
+                            </div>
+                        </div>
                     </ul>
                 </div>
-                <div id="rt">
-                    <div id="search">Search: <input class="srch" type="search"></div>
-                    <div id="user">
-                        <a href="#">Hello, Ricky! <i class="icon-user" style="font-size: 24pt;"></i></a>
-                    </div>
+            </div>
+        </div>
+        <div id="top-right">
+            <div id="small-map">
+                <div class="title">Map<br>
+                    <hr>
                 </div>
             </div>
-        </header>
-        <content>
-            <div id="content">
-                <div id="top-left">
-                    <div id="loc-info">
-                        <div class="title">Chipotle<br><hr></div>
-                        <div id="stats">
-                            <ul>
-                                <li><strong>Crowd Level: </strong><div id="crd-lvl" style="display: inline;font-weight: bolder;color: orange;">6</div></li>
-                                <li><strong>Last Updated: </strong> 3:24 pm 2/3/2015</li>
-                                <li><strong>Typical Crowd Level: </strong><div id="crd-lvl" style="display: inline;font-weight: bolder;color: red;">9</div></li>
-                                <li><strong>Convenience Level: </strong><div id="crd-lvl" style="display: inline;font-weight: bolder;color: greenyellow;">2</div></li>
-                            </ul>
+        </div>
+        <div id="bottom-center">
+
+            <div class="title">Comments<br>
+                <hr>
+            </div>
+            <div id="loc-comments">
+                <ul>
+                    <li>
+                        <div class="comment">
+                            <div class="comment-user"><i class="icon-user" style="font-size: 20pt"></i>Bob</div>
+                            <div class="comment-info">1/23/15<br>10:40am</div>
+                            <div class="comment-content">It was more crowded than a Denny's&trade; at 2am!</div>
                         </div>
-                    </div>
-                </div>
-                <div id="top-right">
-                    <div id="small-map">
-                        <div class="title">Map<br><hr></div>
-                    </div>
-                </div>
-                <div id="bottom-center">
-                    <div id="loc-comments">
-                        <div class="title">Comments<br><hr></div>
-                        <ul>
-                            <li>
-                                <div class="comment">
-                                    <div class="comment-user"><i class="icon-user" style="font-size: 20pt"></i>Bob</div>
-                                    <div class="comment-info">1/23/15<br>10:40am</div>
-                                    <div class="comment-content">It was more crowded than a Denny's&trade; at 2am!</div>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="comment">
-                                    <div class="comment-user"><i class="icon-user" style="font-size: 20pt"></i>Alice</div>
-                                    <div class="comment-info">1/23/15<br>10:40am</div>
-                                    <div class="comment-content">This is dope, yo! My #xXx_MLGswag420blazeitnoscopex_Xx Doritos are better though</div>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="comment">
-                                    <div class="comment-user"><i class="icon-user" style="font-size: 20pt"></i>Marshawn</div>
-                                    <div class="comment-info">1/23/15<br>10:40am</div>
-                                    <div class="comment-content">I am just here so I won't get fined.</div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-
-
+                    </li>
+                    <li>
+                        <div class="comment">
+                            <div class="comment-user"><i class="icon-user" style="font-size: 20pt"></i>Alice</div>
+                            <div class="comment-info">1/23/15<br>10:40am</div>
+                            <div class="comment-content">This is dope, yo! My #xXx_MLGswag420blazeitnoscopex_Xx Doritos
+                                are better though
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="comment">
+                            <div class="comment-user"><i class="icon-user" style="font-size: 20pt"></i>Marshawn</div>
+                            <div class="comment-info">1/23/15<br>10:40am</div>
+                            <div class="comment-content">I am just here so I won't get fined.</div>
+                        </div>
+                    </li>
+                </ul>
             </div>
-        </content>
-        <footer>
-            <!--<div id="ftr">
-                Created be Richard Kotermanski, Nate Dorman, Len Aronson, and Danny Arnold
-            </div>-->
-        </footer>
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
-        <script src="../js/plugins.js"></script>
-        <script src="../js/main.js"></script>
+        </div>
 
-        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-        <script>
-            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-            e.src='//www.google-analytics.com/analytics.js';
-            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-            ga('create','UA-XXXXX-X');ga('send','pageview');
-        </script>
 
-    </body>
+    </div>
+</content>
+<footer>
+    <!--<div id="ftr">
+        Created be Richard Kotermanski, Nate Dorman, Len Aronson, and Danny Arnold
+    </div>-->
+</footer>
+<script src="../js/vendor/jquery-1.10.2.min.js"></script>
+<script src="../js/plugins.js"></script>
+<script src="../js/main.js"></script>
+<script src="http://vast-engineering.github.io/jquery-popup-overlay/jquery.popupoverlay.js"></script>
+
+<script>
+    function showValue(newValue) {
+        document.getElementById("range").innerHTML = newValue;
+    }
+    $(document).ready(function () {
+        $("#content").click(function () {
+            $("#search-result").html("");
+        });
+        function searchVal() {
+            if ($("#search-bar").val() != "") {
+                var res = "";
+                res += "Search results for: " + $("#search-bar").val() + "<br /><ul>";
+                for (var i = 0; i < 10; i++) {
+                    res += "<li><hr /><a href='#'>Testing search for " + $("#search-bar").val() + "</a></li>";
+                }
+                res += "</ul>";
+                $("#search-result").html(res);
+
+            } else {
+                $("#search-result").html("");
+            }
+            /*
+             $.ajax({
+             url: "/urltogetsearchresults/",
+             data: {
+             search-value: $("#search-bar-content").val()
+             },
+             success: function (data) {
+             $("#search-result-content").html(data);
+             }
+             });*/
+        }
+
+        $("#search").click(function () {
+            searchVal();
+        });
+        $("#search").on('input', function () {
+            searchVal();
+        });
+        $("#crowd-slide").on('input', function () {
+            var g = Math.floor(((10 - $("#crowd-slide").val()) / 10) * 255);
+            var r = Math.floor((($("#crowd-slide").val()) / 10) * 255);
+            $("#range").html('<span style="color: rgb(' + r + ',' + g + ',0);">' + $("#crowd-slide").val() + '</span>')
+            $("#crowd-slide").css('background-color', 'rgb(' + r + ',' + g + ',0)');
+        });
+        // Initialize the plugin
+            $('#my_popup').popup();
+            $('#slide').popup({
+                outline: true, // optional
+                focusdelay: 400, // optional
+                vertical: 'top' //optional
+            });
+
+    });
+</script>
+</body>
 </html>

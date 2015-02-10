@@ -4,75 +4,94 @@
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!-->
 <html class="no-js" xmlns="http://www.w3.org/1999/html"> <!--<![endif]-->
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
-        <meta name="description" content="Location based, crowd reporting system">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="../css/1502.css">
-        <link rel="stylesheet" href="../css/normalize.css">
-        <link rel="stylesheet" href="../css/main.css">
-        <script src="../js/vendor/modernizr-2.6.2.min.js"></script>
-    </head>
-    <body>
-        <!--[if lt IE 7]>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="Location based, crowd reporting system">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../css/1502.css">
+    <link rel="stylesheet" href="../css/normalize.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <script src="../js/vendor/modernizr-2.6.2.min.js"></script>
+
+</head>
+<body>
+<!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
 
-        <!-- Add your site or application content here -->
-        <header>
-            <div id="menu-bar">
-                <div id="logo">
-                    <i class="icon-users" style="font-size: 36pt;"></i> Gaggle
-                </div>
-                <div id="link-list">
-                    <ul>
-                       <li>
-                           <a href="#">ABOUT</a>
-                       </li>
-                        <li>|</li>
-                        <li>
-                            <a href="#">AROUND</a>
-                        </li>
-                        <li>|</li>
-                        <li>
-                            <a href="#">ADD</a>
-                        </li>
-                    </ul>
-                </div>
-                <div id="rt">
-                    <div id="search">Search: <input class="srch" type="search"></div>
-                    <div id="user">
-                        <a href="#">Please Login <i class="icon-user" style="font-size: 24pt;"></i></a>
-                    </div>
-                </div>
+<!-- Add your site or application content here -->
+<header>
+    <div id="menu-bar">
+        <div id="logo">
+            <i class="icon-users" style="font-size: 36pt;"></i> Gaggle
+        </div>
+        <div id="link-list">
+            <ul>
+                <li>
+                    <a href="#">ABOUT</a>
+                </li>
+                <li>|</li>
+                <li>
+                    <a href="#">AROUND</a>
+                </li>
+                <li>|</li>
+                <li>
+                    <a href="#">ADD</a>
+                </li>
+            </ul>
+        </div>
+        <div id="rt">
+            <div id="user">
+                <a href="#">Please Login <i class="icon-user" style="font-size: 24pt;"></i></a>
             </div>
-        </header>
-        <content>
-            <div id="content">
-                <div id="center-xy">
-                    <div id="login-field">
-                        <div class="title">Login<br><hr></div>
-                        <form>
-                            Username or Email<br><input type="text" name="username" /><br><br>
-                            Password<br><input type="password" name="pswd"><br><br>
-                        </form>
-                        <a href="#">Register an Account</a> | <a href="#">Forgot Your Password?</a>
-                    </div>
+        </div>
+    </div>
+</header>
+<content>
+    <div id="content">
+        <div id="center-xy">
+            <div id="search-field">
+                <div class="title">Search<br>
+                    <hr>
                 </div>
+                <div id="search-content"><input id="search-bar-content" class="srch" type="textbox"
+                                                    style="height: 30px; width:90%"></div>
+                <span id="search-result-content"></span>
             </div>
-        </content>
-        <footer>
-            <!--<div id="ftr">
-                Created be Richard Kotermanski, Nate Dorman, Len Aronson, and Danny Arnold
-            </div>-->
-        </footer>
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
-        <script src="../js/plugins.js"></script>
-        <script src="../js/main.js"></script>
+        </div>
+    </div>
+</content>
+<footer>
+    <!--<div id="ftr">
+        Created be Richard Kotermanski, Nate Dorman, Len Aronson, and Danny Arnold
+    </div>-->
+</footer>
+<script src="../js/vendor/jquery-1.10.2.min.js"></script>
+<script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
+<script src="../js/plugins.js"></script>
+<script src="../js/main.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#search-bar-content").on('input', function () {
+            if($("#search-bar-content").val() != ""){
+                $("#search-result-content").html("Search results for: " +$("#search-bar-content").val()+"<br /><br />");
+            }else{
+                $("#search-result-content").html("");
+            }
+/*            $.ajax({
+                url: "/urltogetsearchresults/",
+                data: {
+                    search-value: $("#search-bar-content").val()
+                },
+                success: function (data) {
+                    $("#search-result-content").html(data);
+                }
+            });*/
+        });
+    });
+</script>
 
-
-    </body>
+</body>
 </html>
