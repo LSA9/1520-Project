@@ -51,7 +51,9 @@
 </header>
 <content>
     <div id="content">
-        <div id="center-xy">
+        <div id="googleMap" style="top: 70px;left:0; width: 100%; height:92vh;position: absolute;">
+        </div>
+        <div id="center-xy" style="z-index: 100; position: absolute; margin-left: 80px;">
             <div id="search-field">
                 <div class="title">Search<br>
                     <hr>
@@ -72,7 +74,20 @@
 <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
 <script src="../js/plugins.js"></script>
 <script src="../js/main.js"></script>
+<script src="http://maps.googleapis.com/maps/api/js"></script>
+
 <script>
+    function initialize() {
+      var mapProp = {
+        center:new google.maps.LatLng(40.442606, -79.956686),
+        zoom:15,
+        mapTypeId:google.maps.MapTypeId.ROADMAP
+      };
+      var map=new google.maps.Map(document.getElementById("googleMap"), mapProp);
+    }
+
+    google.maps.event.addDomListener(window, 'load', initialize);
+
     $(document).ready(function () {
         $("#search-bar-content").on('input', function () {
             if($("#search-bar-content").val() != ""){

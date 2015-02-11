@@ -75,8 +75,8 @@
                         <div id="my_popup">
                             <div class="modal">
                                 <form method="POST">
-                                    How low can you go?
-                                    <input id="crowd-slide" type="range" width="100px" step="1" max="10" min="0" value="5"/>
+                                    How crowded is it?
+                                    <input title="( 0 being as crowded as Taiwan Cafe and 10 being as crowded as a subway car in Japan during rush hour )" id="crowd-slide" type="range" width="100px" step="1" max="10" min="0" value="5"/>
                                     <span id="range">5</span><br>
                                     <input type="submit" value="Submit">
                                 </form>
@@ -86,8 +86,13 @@
 
             </div>
         </div>
+
          <div id="top-right">
 					<div id="googleMap" style="width:45%; height:38%; position: absolute;">
+
+        <div id="top-right" style="box-shadow: 0 0 0; background-color: transparent;">
+					<div id="googleMap" style="box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);width:45%; height:37.5%; position: absolute;">
+
 					</div>
         </div>
         <div id="bottom-center">
@@ -97,6 +102,14 @@
             </div>
             <div id="loc-comments">
                 <ul>
+                    <li>
+                        <form>
+                            <div class="comment" style="background-color: #E0E0E0;">
+                                <div class="comment-user" style="text-align: center; padding-top: 0px;"><span style="font-size: 14pt;">Create Comment</span></div>
+                                <div class="comment-content"  style="width: 92%; padding:0;"><input type="text" style="width: 95%;height: 54px"><input type="submit" style="height: 60px; width:4%;"></div>
+                            </div>
+                        </form>
+                    </li>
                     <li>
                         <div class="comment">
                             <div class="comment-user"><i class="icon-user" style="font-size: 20pt"></i>Bob</div>
