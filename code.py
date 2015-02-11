@@ -13,12 +13,22 @@ def renderTemplate(handler, templatename, templatevalues) :
 class MainPage(webapp2.RequestHandler) :
   def get(self) :
 	user=users.get_current_user()
+	global around
+	global about
+	title_link=''
+	title=''
+	type=''
+	message=''
 	if user:
 		title_link=(users.create_logout_url('/'))
-		message=("Welcome, %s" % (user.nickname()))
-		title='Welcome'
-		log='Logout'
-		type='#'
+		log=user.nickname()
+		renderTemplate(self,'static-search-page.html', {
+		"title_link": title_link,
+		"message": log,
+		"around": around,
+		"about": about
+		})
+		return
 		
 	else:
 		type=(users.create_login_url('/search'))
@@ -29,14 +39,18 @@ class MainPage(webapp2.RequestHandler) :
 	renderTemplate(self,'static-login-page.html', {
 	"link": type,
 	"message": message,
+	"around": around,
 	"title": title,
 	"log": log,
-	"title_link" : title_link
+	"title_link" : title_link,
+	"about": about
 	})
 	#self.response.out.write("<html><body>%s</body></html>" % greeting)
 	
 class SearchPage(webapp2.RequestHandler):
 	def get(self) :
+		global about
+		global around
 		title_link=(users.create_logout_url('/'))
 		user=users.get_current_user()
 		if user:
@@ -45,22 +59,47 @@ class SearchPage(webapp2.RequestHandler):
 			log='Please login'
 		renderTemplate(self,'static-search-page.html', {
 		"title_link": title_link,
-		"message": log
+		"around": around,
+		"message": log,
+		"about": about
 	
 	})
 	
+class DetailsPage(webapp2.RequestHandler):
+	def get(self):
+		global about
+		global around
+		title_link=(users.create_logout_url('/'))
+		user=users.get_current_user()
+		if user:
+			log=user.nickname()
+		else:
+			log='Please login'
+		renderTemplate(self,'static-information-page.html', {
+		"name": 'test',
+		"title_link": title_link,
+		"around":around,
+		"about":about,
+		"log":log
+		
+		})
+		
 class ProcessForm(webapp2.RequestHandler):
     def post(self):
         name = self.request.get('name')
         color = self.request.get('color')
         renderTemplate(self, 'formresult.html', {
         "name": name,
-        "color": color
-        })
-
+        "color": color,
+		
+        })		
+		
 app = webapp2.WSGIApplication([
 	('/', MainPage),
+	('/details',DetailsPage),
 	('/search',SearchPage),
 	('/processform',ProcessForm)
 	], debug=True)	
 
+around='/search'
+about='/details'

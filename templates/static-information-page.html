@@ -29,11 +29,11 @@
         <div id="link-list">
             <ul>
                 <li>
-                    <a href="#">ABOUT</a>
+                    <a href="{{about}}">ABOUT</a>
                 </li>
                 <li>|</li>
                 <li>
-                    <a href="#">AROUND</a>
+                    <a href="{{around}}">AROUND</a>
                 </li>
                 <li>|</li>
                 <li>
@@ -46,15 +46,15 @@
                 Search: <input class="srch" id="search-bar" type="search"><br/>
                 <span id="search-result"></span>
             </div>
-            <div id="user" title="{{ name }}">
-                <a href="#">Logout<i class="icon-user" style="font-size: 24pt;"></i></a>
+            <div id="user" title="{{name}}">
+                <a href="{{title_link}}">{{log}}<i class="icon-user" style="font-size: 24pt;"></i></a>
             </div>
         </div>
     </div>
 </header>
 <content>
     <div id="content">
-        <div id="top-left">
+       <div id="top-left">
             <div id="loc-info">
                 <div class="title">Chipotle<br>
                     <hr>
@@ -86,7 +86,7 @@
 
             </div>
         </div>
-        <div id="top-right">
+         <div id="top-right">
 					<div id="googleMap" style="width:45%; height:38%; position: absolute;">
 					</div>
         </div>
@@ -147,7 +147,6 @@
       };
       var map=new google.maps.Map(document.getElementById("googleMap"), mapProp);
     }
-
     google.maps.event.addDomListener(window, 'load', initialize);
     function showValue(newValue) {
         document.getElementById("range").innerHTML = newValue;
@@ -165,13 +164,12 @@
                 }
                 res += "</ul>";
                 $("#search-result").html(res);
-
             } else {
                 $("#search-result").html("");
             }
             /*
              $.ajax({
-             url: "/search/getAsyncResults/{{ }}",
+             url: "/search/getAsyncResults/",
              data: {
                 search-value: $("#search-bar-content").val()
              },
@@ -180,7 +178,6 @@
              }
              });*/
         }
-
         $("#search").click(function () {
             searchVal();
         });
@@ -200,7 +197,6 @@
                 focusdelay: 400, // optional
                 vertical: 'top' //optional
             });
-
     });
 </script>
 </body>
