@@ -12,33 +12,33 @@ def renderTemplate(handler, templatename, templatevalues) :
 
 
 class MainPage(webapp2.RequestHandler) :
-  def get(self) :
-	user=users.get_current_user()
-	global around
-	global about
-	title_link=''
-	title=''
-	type=''
-	message=''
-	log=''
-	if user:
-		self.redirect('/search')
+	def get(self) :
+		user=users.get_current_user()
+		global around
+		global about
+		title_link=''
+		title=''
+		type=''
+		message=''
+		log=''
+		if user:
+			self.redirect('/search')
 		
-	else:
-		type=(users.create_login_url('/search'))
-		title_link=type
-		message= ("Click to login")
-		title="Login"
-		log='Please Login'
-	renderTemplate(self,'static-login-page.html', {
-	"link": type,
-	"message": message,
-	"around": around,
-	"title": title,
-	"log": log,
-	"title_link" : title_link,
-	"about": about
-	})
+		else:
+			type=(users.create_login_url('/search'))
+			title_link=type
+			message= ("Click to login")
+			title="Login"
+			log='Please Login'
+		renderTemplate(self,'static-login-page.html', {
+		"link": type,
+		"message": message,
+		"around": around,
+		"title": title,
+		"log": log,
+		"title_link" : title_link,
+		"about": about
+		})
 	#self.response.out.write("<html><body>%s</body></html>" % greeting)
 	
 class SearchPage(webapp2.RequestHandler):
