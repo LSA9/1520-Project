@@ -2,6 +2,7 @@ import os
 import webapp2
 from google.appengine.ext.webapp import template
 from google.appengine.api import users
+from google.appengine.ext import db
 
 
 def renderTemplate(handler, templatename, templatevalues) :
@@ -93,6 +94,11 @@ class ProcessForm(webapp2.RequestHandler):
         "color": color,
 		
         })		
+		
+class Account(db.Model):
+			name= db.StringProperty(required=True)
+			email=db.StringProperty(required=True)
+			home=db.GeoPtProperty(required=True)
 		
 app = webapp2.WSGIApplication([
 	('/', MainPage),
