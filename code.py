@@ -20,16 +20,9 @@ class MainPage(webapp2.RequestHandler) :
 	title=''
 	type=''
 	message=''
+	log=''
 	if user:
-		title_link=(users.create_logout_url('/'))
-		log=user.nickname()
-		renderTemplate(self,'static-search-page.html', {
-		"title_link": title_link,
-		"message": log,
-		"around": around,
-		"about": about
-		})
-		return
+		self.redirect('/search')
 		
 	else:
 		type=(users.create_login_url('/search'))
@@ -58,6 +51,7 @@ class SearchPage(webapp2.RequestHandler):
 			log=user.nickname()
 		else:
 			log='Please login'
+			self.redirect('/')
 		renderTemplate(self,'static-search-page.html', {
 		"title_link": title_link,
 		"around": around,
@@ -76,6 +70,7 @@ class DetailsPage(webapp2.RequestHandler):
 			log=user.nickname()
 		else:
 			log='Please login'
+			self.redirect('/')
 		renderTemplate(self,'static-information-page.html', {
 		"name": 'test',
 		"title_link": title_link,
