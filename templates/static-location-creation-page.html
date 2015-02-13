@@ -54,7 +54,10 @@
                     <div id="location-creation-field">
                         <div class="title">Location Creation<br><hr></div>
                         <form>
-                            &nbsp;&nbsp;&nbsp;&nbsp;Location Name:<br>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="name" id="location-name-box" /> &nbsp; <input type="button" value="Search Map" onclick="searchMap"> <br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;Location Name:<br>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="name" id="location-name-box" /> &nbsp; <input type="button" value="Search Map" onclick="searchMap">
+                            <br>
+                            <span id="latlng"></span>
+                            <br>
                             <hr style="width: 100%; float: left;"><br>
                             <div id="location-creation-map">
                                 <div id="googleMap" style="width:100%; height:300px;">
@@ -119,12 +122,12 @@
                         infowindow.setContent(place.name);
                         infowindow.open(map, this);
                           $("#location-name-box").val(place.name);
-                          alert(place.geometry.location);
+                          $("#latlng").html(place.geometry.location+"");
                       });
                 }
 
                 function searchMap(){
-
+                    //todo Implement google search br functionality
                 }
 
                 google.maps.event.addDomListener(window, 'load', initialize);
