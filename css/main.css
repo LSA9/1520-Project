@@ -252,14 +252,12 @@ body {
 }
 
 #registration-field {
-    height: 500px;
+    height: 600px;
 }
 
 #registration-field form {
     text-align: left;
     padding-top: 10px;
-    width: 400px;
-    margin-left: 150px;
     font-weight: bolder;
 }
 
@@ -317,6 +315,31 @@ body {
     text-overflow: ellipsis;
 }
 
+#pac-input {
+        background-color: #fff;
+        padding: 0 11px 0 13px;
+        width: 200px;
+        font-size: 15px;
+        font-weight: 300;
+        text-overflow: ellipsis;
+      }
+
+      #pac-input:focus {
+        border-color: #4d90fe;
+        margin-left: -1px;
+        padding-left: 14px;		/* Regular padding-left + 1. */
+        width:201px;
+      }
+	  .controls {
+        margin-top: 16px;
+        border: 1px solid transparent;
+        border-radius: 2px 0 0 2px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        height: 32px;
+        outline: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
 .modal {
     position: fixed;
     top: 50%;

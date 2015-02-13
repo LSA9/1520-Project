@@ -54,13 +54,16 @@
                     <div id="registration-field">
                         <div class="title">Account Preferences<br><hr></div>
                         <form>
-                            Nickname<br><input type="text" name="username" /><br>
-                            <hr style="width: 200px; float: left;"><br>
-                            Address<br><input type="text" name="address"><br><br>
-                            City<br><input type="text" name="city"><br><br>
-                            State<br><input type="text" name="state"><br><br>
-                            Zip<br><input type="text" name="zip"><br><br>
-                            <input type="submit" value="Register">
+                            &nbsp;&nbsp;&nbsp;&nbsp;Nickname<br>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="username" /><br>
+                            <hr style="width: 100%; float: left;"><br>
+							&nbsp;&nbsp;&nbsp;&nbsp;Home Address<br>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <div id="location-creation-map">
+							 <input id="pac-input" class="controls" type="text" placeholder="Search Box">
+                                <div id="googleMap" style="width:100%; height:300px;">
+					            </div>
+							</div>
+							&nbsp;&nbsp;&nbsp;&nbsp;Latitude<br>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="latitude" disabled="disabled" /><br>
+							&nbsp;&nbsp;&nbsp;&nbsp;Longitude<br>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="longitude" disabled="disabled" /><br>
                         </form>
                     </div>
                 </div>
@@ -75,6 +78,24 @@
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
         <script src="../js/plugins.js"></script>
         <script src="../js/main.js"></script>
+		<script src="http://maps.googleapis.com/maps/api/js"></script>
+		
+		<script>
+            function initialize() {
+              var mapProp = {
+                center:new google.maps.LatLng(40.442606, -79.956686),
+                zoom:15,
+                mapTypeId:google.maps.MapTypeId.ROADMAP
+              };
+              var map=new google.maps.Map(document.getElementById("googleMap"), mapProp);
+			  
+			  var input = (document.getElementById('pac-input'));
+			map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+  
+            }
+
+            google.maps.event.addDomListener(window, 'load', initialize);
+        </script>
 
 
     </body>
