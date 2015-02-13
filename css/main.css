@@ -138,8 +138,9 @@ body {
 }
 
 #content #loc-comments {
-    min-height: 80%;
+    max-height: 76%;
     overflow-y: scroll;
+    overflow-x: hidden;
 }
 
 #content #loc-comments ul {
@@ -147,10 +148,12 @@ body {
     list-style: none;
     margin: 0;
     padding-left: 0px;
+
 }
 
 #content #loc-comments li {
     height: 60px;
+    width: 100%;
     padding: 0;
     margin: 0;
     border-width: thin;
@@ -158,6 +161,7 @@ body {
     border-color: rgba(130, 148, 148, 0.15);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
     background-color: #ffffff;
+    text-wrap: avoid;
 }
 
 #content #loc-comments .comment-user {
