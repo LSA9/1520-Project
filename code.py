@@ -82,13 +82,18 @@ class DetailsPage(webapp2.RequestHandler):
 		
 class ProcessForm(webapp2.RequestHandler):
     def post(self):
-        name = self.request.get('name')
-        color = self.request.get('color')
-        renderTemplate(self, 'formresult.html', {
-        "name": name,
-        "color": color,
+		user=users.get_current_user()
+        name = self.request.get('username')
+        home = self.request.get('lat_long')
+        renderTemplate(self, 'static-postupdate-page.html', {
+        "log": name 
+        "title_link": '/account',
 		
         })		
+		
+class UpdateAccount(webapp2.RequestHandler):
+	def get(self):
+		renderTemplate(self,'static-account-registrationpage.html',{})
 		
 class Account(db.Model):
 			name= db.StringProperty(required=True)
@@ -99,7 +104,9 @@ app = webapp2.WSGIApplication([
 	('/', MainPage),
 	('/details',DetailsPage),
 	('/search',SearchPage),
-	('/processform',ProcessForm)
+	('/update',ProcessForm),
+	('/account',UpdateAccount)
+	('/)
 	], debug=True)	
 
 around='/search'

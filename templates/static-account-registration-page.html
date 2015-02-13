@@ -55,7 +55,7 @@
                 <div class="title">Account Preferences<br>
                     <hr>
                 </div>
-                <form>
+                <form method="post" action="/update">
                     &nbsp;&nbsp;&nbsp;&nbsp;Nickname<br>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="username"/><br>
                     <hr style="width: 100%; float: left;">
                     <br>
@@ -66,14 +66,12 @@
                         <div id="googleMap" style="width:100%; height:300px;">
                         </div>
                     </div>
-                    &nbsp;&nbsp;&nbsp;&nbsp;Latitude<br>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="latitude"
-                                                                                       readonly="true"
-                                                                                       id="latitude"/><br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;Longitude<br>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="longitude"
-                                                                                        readonly="true" id="longitude"/><br>
+                    <br>
+					<input type="text" disabled="disabled" name="update" id="update">
                     <br>
                     <input type="text" style="display:none;" value="" name="lat_long" id="latlng">
                     <br>
+					<input type="submit" value="Update Profile"> 
                 </form>
             </div>
         </div>
@@ -136,6 +134,8 @@
                 google.maps.event.addListener(marker, 'click', function () {
                     alert(place.geometry.location);
                     $("#latlng").val(place.geometry.location);
+					$("#update").val("Home Location Updated");
+										
                 });
             });
         }
