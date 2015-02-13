@@ -16,6 +16,7 @@ class MainPage(webapp2.RequestHandler):
         user=users.get_current_user()
         global around
         global about
+        global add
         title_link = ''
         title = ''
         type = ''
@@ -35,6 +36,7 @@ class MainPage(webapp2.RequestHandler):
             "link": type,
             "message": message,
             "around": around,
+            "add": add,
             "title": title,
             "log": log,
             "title_link": title_link,
@@ -47,6 +49,7 @@ class SearchPage(webapp2.RequestHandler):
     def get(self) :
         global about
         global around
+        global add
         title_link=(users.create_logout_url('/'))
         user=users.get_current_user()
         if user:
@@ -58,7 +61,8 @@ class SearchPage(webapp2.RequestHandler):
             "title_link": title_link,
             "around": around,
             "message": log,
-            "about": about
+            "about": about,
+            "add": add
         })
 
 
@@ -66,6 +70,7 @@ class DetailsPage(webapp2.RequestHandler):
     def get(self):
         global about
         global around
+        global add
         title_link=(users.create_logout_url('/'))
         user=users.get_current_user()
         if user:
@@ -78,8 +83,8 @@ class DetailsPage(webapp2.RequestHandler):
             "title_link": title_link,
             "around":around,
             "about":about,
-        "log":log
-
+            "add": add,
+            "log": log
         })
 
 
@@ -92,6 +97,28 @@ class ProcessForm(webapp2.RequestHandler):
             "log": name,
             "title_link": '/account',
         })
+
+
+class CreateLocation(webapp2.RequestHandler):
+    def get(self):
+        global about
+        global around
+        global add
+        title_link=(users.create_logout_url('/'))
+        user=users.get_current_user()
+        if user:
+            log=user.nickname()
+        else:
+            log='Please login'
+            self.redirect('/')
+        renderTemplate(self,'static-location-creation-page.html', {
+            "title_link": title_link,
+            "around": around,
+            "add": add,
+            "message": log,
+            "about": about
+        })
+
 
 
 class UpdateAccount(webapp2.RequestHandler):
@@ -109,8 +136,10 @@ app = webapp2.WSGIApplication([
     ('/details', DetailsPage),
     ('/search', SearchPage),
     ('/update', ProcessForm),
-    ('/account', UpdateAccount)
+    ('/account', UpdateAccount),
+    ('/create', CreateLocation)
 ], debug=True)
 
 around = '/search'
 about = '/details'
+add = '/create'
