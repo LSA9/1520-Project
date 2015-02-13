@@ -72,7 +72,7 @@
                         </li>
                         <!--Added by Leonard Aronson 2-8-2015-->
                         <button class="my_popup_open" style="margin-left: 20px">Update</button>
-                        <div id="my_popup">
+                        <div id="my_popup" style="display: none;">
                             <div class="modal">
                                 <form method="POST">
                                     How crowded is it?
@@ -200,6 +200,7 @@
             $("#crowd-slide").css('background-color', 'rgb(' + r + ',' + g + ',0)');
         });
         // Initialize the plugin
+            $('#my_popup').css('display', 'block');
             $('#my_popup').popup();
             $('#slide').popup({
                 outline: true, // optional
