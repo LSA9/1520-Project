@@ -64,7 +64,10 @@
 							</div>
 							&nbsp;&nbsp;&nbsp;&nbsp;Latitude<br>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="latitude" readonly="true" id="latitude" /><br>
 							&nbsp;&nbsp;&nbsp;&nbsp;Longitude<br>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="longitude" readonly="true" id="longitude"/><br>
-                        </form>
+							<br>
+                            <span id="latlng"></span>
+                            <br>
+						</form>
                     </div>
                 </div>
             </div>
@@ -78,9 +81,10 @@
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
         <script src="../js/plugins.js"></script>
         <script src="../js/main.js"></script>
-		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&signed_in=true"></script>
+		<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&signed_in=true"></script>
 		
 		<script>
+		$(document).ready(function(){
             function initialize() {
 			 var mapProp = {
                 center:new google.maps.LatLng(40.442606, -79.956686),
@@ -103,8 +107,7 @@
 			google.maps.event.addListener(marker, 'click', function() {
 			alert("ljasdfljkdsf");
 			
-			document.getElementById("latitude").value='yo';
-			document.getElementById("longitude").value='yo';
+			$("#latlng").html(place.geometry.location+"");
 			});
 			
 			google.maps.event.addListener(autocomplete, 'place_changed', function() {
@@ -129,6 +132,7 @@
 			}
 
             google.maps.event.addDomListener(window, 'load', initialize);
+			});
 			 </script>
 
 
