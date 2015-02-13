@@ -26,9 +26,24 @@
         <div id="logo">
             <i class="icon-users" style="font-size: 36pt;"></i> Gaggle
         </div>
+		<div id="link-list">
+            <ul>
+                <li>
+                    <a href="{{about}}">ABOUT</a>
+                </li>
+                <li>|</li>
+                <li>
+                    <a href="{{around}}">AROUND</a>
+                </li>
+                <li>|</li>
+                <li>
+                    <a href="{{add}}">ADD</a>
+                </li>
+            </ul>
+        </div>
         <div id="rt">
             <div id="user">
-                <a href="#">Logout <i class="icon-user" style="font-size: 24pt;"></i></a>
+                <a href="{{account}}">{{name}} <i class="icon-user" style="font-size: 24pt;"></i></a>
             </div>
         </div>
     </div>
@@ -38,10 +53,12 @@
         <div id="center-xy">
             <div id="registration-field">
                 <div class="title">Account Preferences<br>
+				
                     <hr>
                 </div>
                 <form method="post" action="/update">
-                    &nbsp;&nbsp;&nbsp;&nbsp;Nickname<br>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="username"/><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;Nickname<br>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="username"/>
+					<br>
                     <hr style="width: 100%; float: left;">
                     <br>
                     &nbsp;&nbsp;&nbsp;&nbsp;Home Address<br>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -52,12 +69,13 @@
                         </div>
                     </div>
                     <br>
-					<input type="text" disabled="disabled" name="update" id="update">
+					&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" disabled="disabled" name="update" id="update">
                     <br>
                     <input type="text" style="display:none;" value="" name="lat_long" id="latlng">
                     <br>
-					<input type="submit" value="Update Profile"> 
+					&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" value="Update Profile"> 
                 </form>
+				<a href={{logout}}> <h1>LOGOUT</h1></a>
             </div>
         </div>
     </div>
