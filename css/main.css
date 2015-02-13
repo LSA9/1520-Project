@@ -253,6 +253,7 @@ body {
 
 #registration-field {
     height: 600px;
+	
 }
 
 #registration-field form {
@@ -328,7 +329,7 @@ body {
         border-color: #4d90fe;
         margin-left: -1px;
         padding-left: 14px;		/* Regular padding-left + 1. */
-        width:201px;
+        width:301px;
       }
 	  .controls {
         margin-top: 16px;
