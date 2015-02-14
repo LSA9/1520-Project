@@ -1,5 +1,6 @@
 import os
 import webapp2
+import unicodedata
 from google.appengine.ext.webapp import template
 from google.appengine.api import users
 from google.appengine.ext import db
@@ -22,11 +23,21 @@ class MainPage(webapp2.RequestHandler):
         type = ''
         message = ''
         log = ''
+        
+        #p=q.get()
+    
+		
         if user:
-            self.redirect('/search')
+            mail=user.email()
+            q=db.GqlQuery("SELECT * FROM Account WHERE email = :1",mail)
+            p=q.get()			
+            if not p:               
+                self.redirect('/account')			
+            else:
+			    self.redirect('/search')
 
         else:
-            type=(users.create_login_url('/search'))
+            type=(users.create_login_url('/'))
             title_link=type
             message= ("Click to login")
             title="Login"
@@ -50,15 +61,21 @@ class SearchPage(webapp2.RequestHandler):
         global about
         global around
         global add
-        title_link=('/account')
         user=users.get_current_user()
-        log=user.nickname()       
+        mail=user.email()
+        q=db.GqlQuery("SELECT * FROM Account WHERE email = :1",mail)
+        p=q.get()
+        title_link=('/account')
+        
+        log=p.name
+        coord=p.home		
         renderTemplate(self,'static-search-page.html', {
             "title_link": '/account',
             "around": around,
             "message": log,
             "about": about,
-            "add": add
+            "add": add,
+            "coord": coord
         })
 
 
@@ -88,9 +105,19 @@ class ProcessForm(webapp2.RequestHandler):
     def post(self):
         user=users.get_current_user()
         log=user.nickname()
+        mail=user.email()
         global around,about,add
-        name = self.request.get('username')
-        home = self.request.get('lat_long')
+        nname = self.request.get('username')
+        nhome = self.request.get('lat_long')
+        q=db.GqlQuery("SELECT * FROM Account WHERE email = :1",mail)
+        p=q.get()
+        if not p:
+            u=Account(email=user.email(), name=nname, home=nhome)
+            u.put()
+        else:
+            db.delete(p)
+            u=Account(email=user.email(), name=nname, home=nhome)
+            u.put()			
         renderTemplate(self, 'static-postupdate-page.html', {
             "log": log,
             "title_link": '/account',
@@ -126,24 +153,38 @@ class UpdateAccount(webapp2.RequestHandler):
         global around
         global add		
         user=users.get_current_user()
+        mail=user.email()
         if not user:
-			self.redirect('/')
+		    self.redirect('/')
+        q=db.GqlQuery("SELECT * FROM Account WHERE email = :1",mail)
+        p=q.get()	
+        if not p:
+            nickname=''
+            local=''
+            latlong="(40.442606, -79.956686)"			
+        else:
+            nickname=p.name
+            local=p.home
+            latlong=local			
         name=user.nickname()
         logout=users.create_logout_url('/')
         renderTemplate(self,'static-account-registration-page.html',{
         "account":'/account',
         "name": name,
+        "nickname":nickname,
+        "local": local,		
         "logout": logout,
 		"about": about,
 		"around": around,
-		"add": add
+		"add": add,
+		"ll":latlong
 		})
 
 
 class Account(db.Model):
     name = db.StringProperty(required=True)
     email = db.StringProperty(required=True)
-    home = db.GeoPtProperty(required=True)
+    home = db.StringProperty(required=True)
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
