@@ -63,7 +63,7 @@
                     <ul>
                         <li><strong>Crowd Level: </strong>
 
-                            <div id="crd-lvl" style="display: inline;font-weight: bolder;">9</div>
+                            <div id="crd-lvl" style="display: inline;font-weight: bolder;">{{ businessValue }}</div>
 
                         </li>
                         <li><strong>Last Updated: </strong> 3:24pm 2/3/2015</li>
@@ -71,11 +71,11 @@
                             <div id="crd-lvl-typical" style="display: inline;font-weight: bolder;color: red;">9</div>
                         </li>
                         <!--Added by Leonard Aronson 2-8-2015-->
-                        <button class="my_popup_open" style="margin-left: 20px">Update</button>
+                        <button class="my_popup_open" style="margin-left: 20px" onclick="setlatlong()">Update</button>
                         <div id="my_popup" style="display: none;">
                             <div class="modal">
-                                <form method="POST">
-                                    How crowded is it?
+                                <form method="post" action="/update"> <!--Leonard Aronson 2/12/15: added action-->
+                                    How crowded5 is it?
                                     <input title="( 0 being as crowded as Taiwan Cafe and 10 being as crowded as a subway car in Japan during rush hour )" id="crowd-slide" type="range" width="100px" step="1" max="10" min="0" value="5"/>
                                     <span id="range" style="margin-left: 10px; font-size: 18pt; font-weight: bolder; position: fixed;">5</span><br>
                                     <input type="submit" value="Submit">
@@ -157,6 +157,17 @@
       var map=new google.maps.Map(document.getElementById("googleMap"), mapProp);
     }
     google.maps.event.addDomListener(window, 'load', initialize);
+
+    function setlatlng(){
+        var x = document.createElement("Input");
+        x.setAttribute("type","hidden");
+        x.setAttribute("name","lat");
+        document.appendChild(x);
+        var y = document.createElement("Input");
+        y.setAttribute("type","hidden");
+        y.setAttribute("name","lng");
+        document.appendChild(y);
+    }
     function showValue(newValue) {
         document.getElementById("range").innerHTML = newValue;
     }

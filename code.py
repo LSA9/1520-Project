@@ -4,6 +4,7 @@ import unicodedata
 from google.appengine.ext.webapp import template
 from google.appengine.api import users
 from google.appengine.ext import db
+from google.appengine.ext import ndb
 
 
 def renderTemplate(handler, templatename, templatevalues):
@@ -91,18 +92,38 @@ class DetailsPage(webapp2.RequestHandler):
         else:
             log='Please login'
             self.redirect('/')
+        lat = 40.442606
+        lng = -79.956686
+        query = Location.query()
+        query.filter(locationInfo = (40.442606, -79.956686))
+        location = query.fetch()
+        val = 0
+        for BusinessValue in location:
+            val += BusinessValue.value
+
         renderTemplate(self,'static-information-page.html', {
             "name": 'test',
             "title_link": '/account',
             "around":around,
             "about":about,
             "add": add,
-            "log": log
+            "log": log,
+            "businessValue" : val
         })
 
 
 class ProcessForm(webapp2.RequestHandler):
     def post(self):
+        lat = self.request.get('lat')
+        lng = self.request.get('lng')
+        query = Location.query()
+        query.filter(locationInfo = (lat,lng))
+        location = query.fetch()
+        newPost = BusinessValue(value = self.request.get('range'),
+                                comment = ' ',
+                                user = users.get_current_user())
+        location.businessValues.append(newPost)
+        location.put()
         user=users.get_current_user()
         log=user.nickname()
         mail=user.email()
@@ -181,10 +202,21 @@ class UpdateAccount(webapp2.RequestHandler):
 		})
 
 
-class Account(db.Model):
-    name = db.StringProperty(required=True)
-    email = db.StringProperty(required=True)
-    home = db.StringProperty(required=True)
+class Account(ndb.Model):
+    name = ndb.StringProperty(required=True)
+    email = ndb.StringProperty(required=True)
+    home = ndb.GeoPtProperty(required=True)
+
+class Location(ndb.Model):
+    locationInfo = ndb.GeoPtProperty(required=True)
+    name = ndb.StringProperty(required=True)
+    businessValues = ndb.StructuredProperty(BusinessValue,required=True)
+
+
+class BusinessValue(ndb.Model):
+    value = ndb.IntegerProperty(required=True)
+    comment = ndb.StringProperty()
+    user = ndb.UserProperty()
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
