@@ -43,7 +43,7 @@
         </div>
         <div id="rt">
             <div id="search">
-                Search: <input class="srch" id="search-bar" type="search"><br/>
+                <i class="icon-zoom-in" style="font-size: 16pt;"></i> <input class="srch" id="search-bar" type="search"><br/>
                 <span id="search-result"></span>
             </div>
             <div id="user" title="{{name}}">
@@ -167,7 +167,7 @@
         function searchVal() {
             if ($("#search-bar").val() != "") {
                 var res = "";
-                res += "Search results for: " + $("#search-bar").val() + "<br /><ul>";
+                res += "<br /><a href='{{add}}' style='text-align: center; font-weight: bolder; color: #607D8B;'> + Create New </a><br /><ul>";
                 for (var i = 0; i < 10; i++) {
                     res += "<li><hr /><a href='#'>Testing search for " + $("#search-bar").val() + "</a></li>";
                 }
