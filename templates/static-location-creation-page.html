@@ -1,137 +1,186 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if lt IE 7]>
+<html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>
+<html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>
+<html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!-->
 <html class="no-js" xmlns="http://www.w3.org/1999/html"> <!--<![endif]-->
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
-        <meta name="description" content="Location based, crowd reporting system">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="../css/1502.css">
-        <link rel="stylesheet" href="../css/normalize.css">
-        <link rel="stylesheet" href="../css/main.css">
-        <script src="../js/vendor/modernizr-2.6.2.min.js"></script>
-    </head>
-    <body>
-        <!--[if lt IE 7]>
-            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="Location based, crowd reporting system">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../css/1502.css">
+    <link rel="stylesheet" href="../css/normalize.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <script src="../js/vendor/modernizr-2.6.2.min.js"></script>
+</head>
+<body>
+<!--[if lt IE 7]>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
+    your browser</a> to improve your experience.</p>
+<![endif]-->
 
-        <!-- Add your site or application content here -->
-        <header>
-            <div id="menu-bar">
-                <div id="logo">
-                    <i class="icon-users" style="font-size: 36pt;"></i> Gaggle
-                </div>
-                <div id="link-list">
-                    <ul>
-                       <li>
-                           <a href="{{about}}">ABOUT</a>
-                       </li>
-                        <li>|</li>
-                        <li>
-                            <a href="{{around}}">AROUND</a>
-                        </li>
-                        <li>|</li>
-                        <li>
-                            <a href="{{add}}">ADD</a>
-                        </li>
-                    </ul>
-                </div>
-                <div id="rt">
-                    <div id="user">
-                        <a href="{{title_link}}">{{log}} <i class="icon-user" style="font-size: 24pt;"></i></a>
-                    </div>
-                </div>
+<!-- Add your site or application content here -->
+<header>
+    <div id="menu-bar">
+        <div id="logo">
+            <i class="icon-users" style="font-size: 36pt;"></i> Gaggle
+        </div>
+        <div id="link-list">
+            <ul>
+                <li>
+                    <a href="{{about}}">ABOUT</a>
+                </li>
+                <li>|</li>
+                <li>
+                    <a href="{{around}}">AROUND</a>
+                </li>
+                <li>|</li>
+                <li>
+                    <a href="{{add}}">ADD</a>
+                </li>
+            </ul>
+        </div>
+        <div id="rt">
+            <div id="user">
+                <a href="{{title_link}}">{{log}} <i class="icon-user" style="font-size: 24pt;"></i></a>
             </div>
-        </header>
-        <content>
-            <div id="content">
-                <div id="center-xy">
-                    <div id="location-creation-field">
-                        <div class="title">Location Creation<br><hr></div>
-                        <form>
-                            &nbsp;&nbsp;&nbsp;&nbsp;Location Name:<br>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="name" id="location-name-box" /> &nbsp; <input type="button" value="Search Map" onclick="searchMap">
-                            <br>
-                            <span id="latlng"></span>
-                            <br>
-                            <hr style="width: 100%; float: left;"><br>
-                            <div id="location-creation-map">
-                                <div id="googleMap" style="width:100%; height:300px;">
-					            </div>
-                            </div>
-                        </form>
-                    </div>
+        </div>
+    </div>
+</header>
+<content>
+    <div id="content">
+        <div id="center-xy">
+            <div id="location-creation-field">
+                <div class="title">Location Creation<br>
+                    <hr>
                 </div>
+                <form onkeypress="return event.keyCode != 13;" method="post" id="create_form">
+                    <div id="location-creation-map">
+                        <input id="pac-input" class="controls" type="text" placeholder="Search and Select Marker">
+
+                        <div id="googleMap" style="width:100%; height:300px;">
+                        </div>
+                    </div>
+                    <span style="font-size: 9pt; color: #737373;">Please search and select a marker from the map for your location</span>
+                    <hr style="width: 100%; float: left;">
+                     <br><br>
+                    <input style="display: none;" type="text" value="" name="lat_long" id="latlng">
+					&nbsp;&nbsp;&nbsp;&nbsp;Location address:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<textarea style="background-color: #9e9e9e; border: solid #737373 thin; height: 100px; width: auto;" type="" value="" name="address" id="address" ></textarea>
+                    <br>
+                    <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;Location Name:<br>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="location_name"
+                                                                                             id="location-name-box"/>
+                    &nbsp; <input type="submit" value="Create Location">
+
+
+
+                </form>
             </div>
-        </content>
-        <footer>
-            <!--<div id="ftr">
-                Created be Richard Kotermanski, Nate Dorman, Len Aronson, and Danny Arnold
-            </div>-->
-        </footer>
-        <script src="../js/vendor/jquery-1.10.2.min.js"></script>
-        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
-        <script src="../js/plugins.js"></script>
-        <script src="../js/main.js"></script>
-        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>
+        </div>
+    </div>
+</content>
+<footer>
+    <!--<div id="ftr">
+        Created be Richard Kotermanski, Nate Dorman, Len Aronson, and Danny Arnold
+    </div>-->
+</footer>
+<script src="../js/vendor/jquery-1.10.2.min.js"></script>
+<script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
+<script src="../js/vendor/jquery.validate.min.js"></script>
+<script src="../js/vendor/additional-methods.min.js"></script>
+<script src="../js/plugins.js"></script>
+<script src="../js/main.js"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>
 
-        <script>
-            $(document).ready(function(){
-                var map;
-                var infowindow;
-                function initialize() {
-
-                    var mapProp = {
-                        center:new google.maps.LatLng(40.442606, -79.956686),
-                        zoom: 15,
-                        mapTypeId:google.maps.MapTypeId.ROADMAP
-                    };
-                    map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
-                    infowindow = new google.maps.InfoWindow();
-                    var service = new google.maps.places.PlacesService(map);
-                    var request = {
-                        location: new google.maps.LatLng(40.442606, -79.956686),
-                        radius: '500',
-                        types: ['food']
-                    };
-                    service.nearbySearch(request, callback);
-
+<script>
+    $(document).ready(function () {
+        $("#update").focus(function() {
+            $(this).blur();
+        });
+         $("#create_form").validate({
+            rules: {
+                address: {
+                    required: true
+                },
+                location_name: {
+                    required: true,
+                    minlength: 2
                 }
-                                function callback(results, status) {
-                  if (status == google.maps.places.PlacesServiceStatus.OK) {
-                    for (var i = 0; i < results.length; i++) {
-                      var place = results[i];
-                      createMarker(results[i]);
-                    }
-                  }
+            },
+            messages: {
+                address: {
+                    required: " <br>&nbsp;&nbsp;&nbsp;Please select a pin from the map for the location"
+                },
+                location_name: {
+                    required: " <br>&nbsp;&nbsp;&nbsp;Please give us something to call this place"
                 }
-                function createMarker(place) {
-                      var placeLoc = place.geometry.location;
-                      var marker = new google.maps.Marker({
-                        map: map,
-                        position: place.geometry.location
-                      });
+            },
+            submitHandler: function (form) {
+                form.submit();
+            }
+        });
 
-                      google.maps.event.addListener(marker, 'click', function() {
-                        infowindow.setContent(place.name);
-                        infowindow.open(map, this);
-                          $("#location-name-box").val(place.name);
-                          $("#latlng").html(place.geometry.location+"");
-                      });
-                }
+        var map;
+        var infowindow;
 
-                function searchMap(){
-                    //todo Implement google search br functionality
-                }
+        function initialize() {
+            var mapProp = {
+                center: new google.maps.LatLng(40.441069, -79.95792899999998),
+                zoom: 15,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+            var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
 
-                google.maps.event.addDomListener(window, 'load', initialize);
+
+            var input = (document.getElementById('pac-input'));
+            var autocomplete = new google.maps.places.Autocomplete(input);
+            autocomplete.bindTo('bounds', map);
+
+            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+
+            var marker = new google.maps.Marker({
+                map: map
             });
-        </script>
 
-    </body>
+
+            google.maps.event.addListener(autocomplete, 'place_changed', function () {
+                var place = autocomplete.getPlace();
+                if (!place.geometry) {
+                    return;
+                }
+
+                if (place.geometry.viewport) {
+                    map.fitBounds(place.geometry.viewport);
+                } else {
+                    map.setCenter(place.geometry.location);
+                    map.setZoom(17);
+                }
+
+                marker.setPlace({
+                    placeId: place.place_id,
+                    location: place.geometry.location
+                });
+                marker.setVisible(true);
+                google.maps.event.addListener(marker, 'click', function () {
+                    $("#location-name-box").val(place.name);
+                    $("#latlng").val(place.geometry.location);
+                    $("#address").val(place.name + "\n" + place.formatted_address);
+                });
+            });
+        }
+
+        google.maps.event.addDomListener(window, 'load', initialize);
+    });
+
+</script>
+
+</body>
 </html>
 

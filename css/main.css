@@ -267,7 +267,7 @@ body {
 }
 
 #location-creation-field {
-    height: 470px;
+    height: 680px;
 }
 
 #location-creation-field form {
@@ -433,7 +433,7 @@ fieldset {
  */
 
 textarea {
-    resize: vertical;
+    resize: none;
 }
 
 /* ==========================================================================
