@@ -5,6 +5,7 @@ from google.appengine.ext.webapp import template
 from google.appengine.api import users
 from google.appengine.ext import db
 from google.appengine.ext import ndb
+from google.appengine.ext import search
 import re
 
 def renderTemplate(handler, templatename, templatevalues):
@@ -27,14 +28,16 @@ class MainPage(webapp2.RequestHandler):
         
         #p=q.get()
     
+
         if user:
             mail=user.email()
-            q=db.GqlQuery("SELECT * FROM Account WHERE email = :1",mail)
+            q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
             p=q.get()			
             if not p:               
                 self.redirect('/account')			
             else:
-                self.redirect('/search')
+			    self.redirect('/search')
+
         else:
             type=(users.create_login_url('/'))
             title_link=type
@@ -52,6 +55,26 @@ class MainPage(webapp2.RequestHandler):
             "title_link": title_link,
             "about": about
         })
+    #self.response.out.write("<html><body>%s</body></html>" % greeting)
+
+class AsyncSearch(webapp2.RequestHandler):
+    def get(self):
+        print(self.request.get('search-value')+" a--------------------------------------")
+        query = Location.query(Location.name == self.request.get('search-value'))
+        locs = query.fetch()
+        res = ""
+        res += "<ul style='text-align: left; width:100%'>"
+        for loc in locs:
+            lat = ""
+            s = loc.locationInfo.find('(')
+            e = loc.locationInfo.find(',', s)
+            lat = round(float(loc.locationInfo[s+1:e]), 6)
+            s = loc.locationInfo.find(',')
+            e = loc.locationInfo.find(')', s)
+            lng = round(float(loc.locationInfo[s+1:e]), 6)
+            res += "<hr style='float: left;'  /><br /><a href='/details/" + str(lat) + "/" + str(lng) + "'><li style='list-style: none; font-size:18pt; text-decoration: none;'>" + loc.name + "</li></a>"
+        res += "</ul>"
+        self.response.out.write(res)
 
 
 class SearchPage(webapp2.RequestHandler):
@@ -61,7 +84,7 @@ class SearchPage(webapp2.RequestHandler):
         global add
         user=users.get_current_user()
         mail=user.email()
-        q=db.GqlQuery("SELECT * FROM Account WHERE email = :1",mail)
+        q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
         title_link=('/account')
         
@@ -89,18 +112,20 @@ class DetailsPage(webapp2.RequestHandler):
         else:
             log='Please login'
             self.redirect('/')
-
-        #lat = 40.442606
-        #lng = -79.956686
-        query = Location.query()
-        query.filter(locationInfo = (lat, lng))
+        # lat = 40.442606
+        # lng = -79.956686
+        lat_long ='('+lat+', ' + lng+')';
+        query = Location.query(Location.locationInfo == lat_long)
         location = query.fetch()
+        if not location:
+            self.redirect(add)
         val = 0
-        for BusinessValue in location:
-            val += BusinessValue.value
+ #       for bv in location[0].businessValues:
+        val += location[0].businessValues.value
 
         renderTemplate(self,'static-information-page.html', {
-            "name": 'test',
+            "location_name": location[0].name,
+            "location_latlng": lat_long,
             "title_link": '/account',
             "around": around,
             "about": about,
@@ -112,31 +137,22 @@ class DetailsPage(webapp2.RequestHandler):
 
 class ProcessForm(webapp2.RequestHandler):
     def post(self):
-        lat = self.request.get('lat')
-        lng = self.request.get('lng')
-        query = Location.query()
-        query.filter(locationInfo = (lat,lng))
-        location = query.fetch()
-        newPost = BusinessValue(value = self.request.get('range'),
-                                comment = ' ',
-                                user = users.get_current_user())
-        location.businessValues.append(newPost)
-        location.put()
         user=users.get_current_user()
         log=user.nickname()
         mail=user.email()
         global around,about,add
         nname = self.request.get('username')
         nhome = self.request.get('lat_long')
-        q=db.GqlQuery("SELECT * FROM Account WHERE email = :1",mail)
+        q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
         if not p:
             u=Account(email=user.email(), name=nname, home=nhome)
             u.put()
         else:
-            db.delete(p)
-            u=Account(email=user.email(), name=nname, home=nhome)
-            u.put()			
+            p.name=nname
+            p.home=nhome
+            p.put()
+
         renderTemplate(self, 'static-postupdate-page.html', {
             "log": log,
             "title_link": '/account',
@@ -155,7 +171,7 @@ class CreateLocation(webapp2.RequestHandler):
         user=users.get_current_user()
         if not user:
             self.redirect('/')
-        name = user.nickname()
+        name=user.nickname()
         renderTemplate(self,'static-location-creation-page.html', {
             "title_link": '/account',
             "around": around,
@@ -163,23 +179,28 @@ class CreateLocation(webapp2.RequestHandler):
             "log": name,
             "about": about
         })
+
     def post(self):
         lat = ""
-        s = self.request.lat_long.find('(')
-        e = self.request.lat_long.find(',', s)
-        lat = int(self.request.lat_long[s+1:e])
-        s = self.request.lat_long.find(',')
-        e = self.request.lat_long.find(')', s)
-        lng = int(self.request.lat_long[s+1:e])
-        query = Location.query()
-        query.filter(locationInfo = (lat, lng))
+        s = self.request.get('lat_long').find('(')
+        e = self.request.get('lat_long').find(',', s)
+        lat = round(float(self.request.get('lat_long')[s+1:e]), 6)
+        s = self.request.get('lat_long').find(',')
+        e = self.request.get('lat_long').find(')', s)
+        lng = round(float(self.request.get('lat_long')[s+1:e]), 6)
+        lat_long = '(' + str(lat) + ', ' + str(lng) + ')'
+        query = Location.query(Location.locationInfo == lat_long)
         location = query.fetch()
         if location:
             self.redirect('/details/'+str(lat)+'/'+str(lng))
         else:
-            loc = Location(locationInfo = (lat, lng), name = self.request.location_name, businessValues = None)
+            bv = BusinessValue(value=5)
 
+            loc = Location(locationInfo=lat_long, name=self.request.get('location_name'), businessValues=bv)
+            loc.put()
+        print(lat_long +"   u0u{")
         self.redirect('/details/'+str(lat)+'/'+str(lng))
+
 
 class UpdateAccount(webapp2.RequestHandler):
     def get(self):
@@ -190,19 +211,19 @@ class UpdateAccount(webapp2.RequestHandler):
         mail=user.email()
         if not user:
             self.redirect('/')
-        q = db.GqlQuery("SELECT * FROM Account WHERE email = :1",mail)
-        p = q.get()
+        q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
+        p=q.get()
         if not p:
             nickname=''
-            local = ''
-            latlong = "(40.442606, -79.956686)"
+            local=''
+            latlong="(40.442606, -79.956686)"
         else:
-            nickname = p.name
-            local = p.home
-            latlong = local
-        name = user.nickname()
-        logout = users.create_logout_url('/')
-        renderTemplate(self, 'static-account-registration-page.html',{
+            nickname=p.name
+            local=p.home
+            latlong=local
+        name=user.nickname()
+        logout=users.create_logout_url('/')
+        renderTemplate(self,'static-account-registration-page.html',{
             "account":'/account',
             "name": name,
             "nickname":nickname,
@@ -218,7 +239,7 @@ class UpdateAccount(webapp2.RequestHandler):
 class Account(ndb.Model):
     name = ndb.StringProperty(required=True)
     email = ndb.StringProperty(required=True)
-    home = ndb.GeoPtProperty(required=True)
+    home = ndb.StringProperty(required=True)
 
 
 class BusinessValue(ndb.Model):
@@ -228,16 +249,16 @@ class BusinessValue(ndb.Model):
 
 
 class Location(ndb.Model):
-    locationInfo = ndb.GeoPtProperty(required=True)
+    locationInfo = ndb.StringProperty(required=True)
     name = ndb.StringProperty(required=True)
     businessValues = ndb.StructuredProperty(BusinessValue,required=True)
-
 
 
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/details/([^/]+)/([^/]+)', DetailsPage),
+    ('/search/async', AsyncSearch),
     ('/search', SearchPage),
     ('/update', ProcessForm),
     ('/account', UpdateAccount),
@@ -246,5 +267,5 @@ app = webapp2.WSGIApplication([
 
 dummy='test'
 around = '/search'
-about = '/details'
+about = '/details/40.442573/-79.956675'
 add = '/create'

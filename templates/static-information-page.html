@@ -10,10 +10,10 @@
     <title></title>
     <meta name="description" content="Location based, crowd reporting system">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="../css/1502.css">
-    <link rel="stylesheet" href="../css/normalize.css">
-    <link rel="stylesheet" href="../css/main.css">
-    <script src="../js/vendor/modernizr-2.6.2.min.js"></script>
+    <link rel="stylesheet" href="../../css/1502.css">
+    <link rel="stylesheet" href="../../css/normalize.css">
+    <link rel="stylesheet" href="../../css/main.css">
+    <script src="../../js/vendor/modernizr-2.6.2.min.js"></script>
 </head>
 <body>
 <!--[if lt IE 7]>
@@ -56,7 +56,7 @@
     <div id="content">
        <div id="top-left">
             <div id="loc-info">
-                <div class="title">Chipotle<br>
+                <div class="title">{{location_name}}<br>
                     <hr>
                 </div>
 
@@ -141,20 +141,25 @@
         Created be Richard Kotermanski, Nate Dorman, Len Aronson, and Danny Arnold
     </div>-->
 </footer>
-<script src="../js/vendor/jquery-1.10.2.min.js"></script>
-<script src="../js/plugins.js"></script>
-<script src="../js/main.js"></script>
+<script src="../../js/vendor/jquery-1.10.2.min.js"></script>
+<script src="../../js/plugins.js"></script>
+<script src="../../js/main.js"></script>
 <script src="http://vast-engineering.github.io/jquery-popup-overlay/jquery.popupoverlay.js"></script>
 <script src="http://maps.googleapis.com/maps/api/js"></script>
 
 <script>
     function initialize() {
       var mapProp = {
-        center:new google.maps.LatLng(40.442606, -79.956686),
-        zoom:15,
+        center:new google.maps.LatLng{{location_latlng}},
+        zoom:18,
         mapTypeId:google.maps.MapTypeId.ROADMAP
       };
       var map=new google.maps.Map(document.getElementById("googleMap"), mapProp);
+      var marker = new google.maps.Marker({
+            position: new google.maps.LatLng{{location_latlng}},
+            map: map,
+            title:"{{location_name}}"
+        });
     }
     google.maps.event.addDomListener(window, 'load', initialize);
 

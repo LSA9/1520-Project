@@ -92,18 +92,19 @@
         $("#search-bar-content").on('input', function () {
             if($("#search-bar-content").val() != ""){
                 $("#search-result-content").html("Search results for: " +$("#search-bar-content").val()+"<br /><br />");
+                $.ajax({
+                    url: "/search/async",
+                    data: {
+                        'search-value' : $("#search-bar-content").val()
+                    },
+                    success: function(data) {
+                        $("#search-result-content").html(data);
+                    }
+                });
             }else{
                 $("#search-result-content").html("");
             }
-/*            $.ajax({
-                url: "/urltogetsearchresults/",
-                data: {
-                    search-value: $("#search-bar-content").val()
-                },
-                success: function (data) {
-                    $("#search-result-content").html(data);
-                }
-            });*/
+
         });
     });
 </script>
