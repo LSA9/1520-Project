@@ -244,6 +244,7 @@ app = webapp2.WSGIApplication([
     ('/create', CreateLocation)
 ], debug=True)
 
+dummy='test'
 around = '/search'
 about = '/details'
 add = '/create'
