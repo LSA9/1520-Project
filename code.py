@@ -30,7 +30,7 @@ class MainPage(webapp2.RequestHandler):
 		
         if user:
             mail=user.email()
-            q=db.GqlQuery("SELECT * FROM Account WHERE email = :1",mail)
+            q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
             p=q.get()			
             if not p:               
                 self.redirect('/account')			
@@ -64,7 +64,7 @@ class SearchPage(webapp2.RequestHandler):
         global add
         user=users.get_current_user()
         mail=user.email()
-        q=db.GqlQuery("SELECT * FROM Account WHERE email = :1",mail)
+        q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
         title_link=('/account')
         
@@ -114,31 +114,22 @@ class DetailsPage(webapp2.RequestHandler):
 
 class ProcessForm(webapp2.RequestHandler):
     def post(self):
-        lat = self.request.get('lat')
-        lng = self.request.get('lng')
-        query = Location.query()
-        query.filter(locationInfo = (lat,lng))
-        location = query.fetch()
-        newPost = BusinessValue(value = self.request.get('range'),
-                                comment = ' ',
-                                user = users.get_current_user())
-        location.businessValues.append(newPost)
-        location.put()
         user=users.get_current_user()
         log=user.nickname()
         mail=user.email()
         global around,about,add
         nname = self.request.get('username')
         nhome = self.request.get('lat_long')
-        q=db.GqlQuery("SELECT * FROM Account WHERE email = :1",mail)
+        q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
         if not p:
             u=Account(email=user.email(), name=nname, home=nhome)
             u.put()
         else:
-            db.delete(p)
-            u=Account(email=user.email(), name=nname, home=nhome)
-            u.put()			
+            p.name=nname 
+            p.home=nhome
+            p.put()
+            			
         renderTemplate(self, 'static-postupdate-page.html', {
             "log": log,
             "title_link": '/account',
@@ -177,7 +168,7 @@ class UpdateAccount(webapp2.RequestHandler):
         mail=user.email()
         if not user:
 		    self.redirect('/')
-        q=db.GqlQuery("SELECT * FROM Account WHERE email = :1",mail)
+        q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()	
         if not p:
             nickname=''
@@ -205,18 +196,20 @@ class UpdateAccount(webapp2.RequestHandler):
 class Account(ndb.Model):
     name = ndb.StringProperty(required=True)
     email = ndb.StringProperty(required=True)
-    home = ndb.GeoPtProperty(required=True)
+    home = ndb.StringProperty(required=True)
 
+class BusinessValue(ndb.Model):
+    value = ndb.IntegerProperty(required=True)
+    comment = ndb.StringProperty()
+    user = ndb.UserProperty()	
+	
 class Location(ndb.Model):
     locationInfo = ndb.GeoPtProperty(required=True)
     name = ndb.StringProperty(required=True)
     businessValues = ndb.StructuredProperty(BusinessValue,required=True)
 
 
-class BusinessValue(ndb.Model):
-    value = ndb.IntegerProperty(required=True)
-    comment = ndb.StringProperty()
-    user = ndb.UserProperty()
+
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
