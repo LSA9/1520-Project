@@ -59,13 +59,12 @@ class MainPage(webapp2.RequestHandler):
     #self.response.out.write("<html><body>%s</body></html>" % greeting)
 
 class AsyncSearch(webapp2.RequestHandler):
-
     def get(self):
         index = search.Index(name = "LocationIndex")
-        results = index.search("name = " + self.request.get('search-value'+""))
+
+        results = index.search("name = " +self.request.get('search-value'))
         res = ""
         markers=[]
-        print(results)
         if results:
             i = 0
             res += "<ul style='text-align: left; width:100%; text-decoration: none;'>"
@@ -81,7 +80,6 @@ class AsyncSearch(webapp2.RequestHandler):
                 res += "<br /><hr style='float: left; padding: 0px; margin: 0px;'  /><a href='/details/" + str(lat) + "/" + str(lng) + "' style='text-decoration: none;'><li style='list-style: none; font-size:130%; text-decoration: none; padding: 3px; margin-left: 4px;'>" + r.field('name').value + "</li></a>"
             res += "</ul>"
             res += '<a style="padding-top: 10px; margin-top:10px; text-decoration: none; font-size:16pt; color:#777777;" href="' + add + '"> + Create New Location </a>'
-        print(res)
         data = json.dumps({'html': res,'markers': markers})
         self.response.out.write(data)
 
