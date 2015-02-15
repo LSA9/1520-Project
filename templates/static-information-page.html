@@ -182,26 +182,20 @@
         });
         function searchVal() {
             if ($("#search-bar").val() != "") {
-                var res = "";
-                res += "<br /><a href='{{add}}' style='text-align: center; font-weight: bolder; color: #607D8B;'> + Create New </a><br /><ul>";
-                for (var i = 0; i < 10; i++) {
-                    res += "<li><hr /><a href='#'>Testing search for " + $("#search-bar").val() + "</a></li>";
-                }
-                res += "</ul>";
-                $("#search-result").html(res);
+                 $.ajax({
+                 url: "/search/async",
+                     data: {
+                        search-value: $("#search-bar-content").val()
+                     },
+                     success: function (data) {
+                        $("#search-result").html(data['html']);
+                     }
+                 });
             } else {
                 $("#search-result").html("");
             }
-            /*
-             $.ajax({
-             url: "/search/getAsyncResults/",
-             data: {
-                search-value: $("#search-bar-content").val()
-             },
-             success: function (data) {
-             $("#search-result-content").html(data);
-             }
-             });*/
+
+
         }
         $("#search").click(function () {
             searchVal();

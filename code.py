@@ -5,7 +5,8 @@ from google.appengine.ext.webapp import template
 from google.appengine.api import users
 from google.appengine.ext import db
 from google.appengine.ext import ndb
-from google.appengine.ext import search
+from google.appengine.api import search
+import json
 import re
 
 def renderTemplate(handler, templatename, templatevalues):
@@ -60,21 +61,40 @@ class MainPage(webapp2.RequestHandler):
 class AsyncSearch(webapp2.RequestHandler):
     def get(self):
         print(self.request.get('search-value')+" a--------------------------------------")
-        query = Location.query(Location.name == self.request.get('search-value'))
-        locs = query.fetch()
+        index = search.Index(name = "LocationIndex")
+        results = index.search("name = "+self.request.get('search-value'))
         res = ""
-        res += "<ul style='text-align: left; width:100%'>"
-        for loc in locs:
-            lat = ""
-            s = loc.locationInfo.find('(')
-            e = loc.locationInfo.find(',', s)
-            lat = round(float(loc.locationInfo[s+1:e]), 6)
-            s = loc.locationInfo.find(',')
-            e = loc.locationInfo.find(')', s)
-            lng = round(float(loc.locationInfo[s+1:e]), 6)
-            res += "<hr style='float: left;'  /><br /><a href='/details/" + str(lat) + "/" + str(lng) + "'><li style='list-style: none; font-size:18pt; text-decoration: none;'>" + loc.name + "</li></a>"
-        res += "</ul>"
-        self.response.out.write(res)
+        markers=[]
+        print(results)
+        if results:
+            i = 0
+            qrystring = "SELECT * FROM Location WHERE "
+            for r in results:
+                if i == 0:
+                    qrystring += "locationInfo = '" + r.field('locationInfo').value+"'"
+                else:
+                    qrystring += " AND locationInfo = '" +  r.field('locationInfo').value+"'"
+                i+=1
+            if i > 0:
+                print(qrystring)
+                query = ndb.gql(qrystring)
+                locs = query.fetch()
+                res += "<ul style='text-align: left; width:100%'>"
+
+                for loc in locs:
+                    lat = ""
+                    s = loc.locationInfo.find('(')
+                    e = loc.locationInfo.find(',', s)
+                    lat = round(float(loc.locationInfo[s+1:e]), 6)
+                    s = loc.locationInfo.find(',')
+                    e = loc.locationInfo.find(')', s)
+                    lng = round(float(loc.locationInfo[s+1:e]), 6)
+                    markers.append({'lat': str(lat), 'lng': str(lng), 'title': loc.name})
+                    res += "<hr style='float: left;'  /><br /><a href='/details/" + str(lat) + "/" + str(lng) + "'><li style='list-style: none; font-size:18pt; text-decoration: none;'>" + loc.name + "</li></a>"
+                    res += "</ul>"
+        print(res)
+        data = json.dumps({'html': res,'markers': markers})
+        self.response.out.write(data)
 
 
 class SearchPage(webapp2.RequestHandler):
@@ -181,6 +201,7 @@ class CreateLocation(webapp2.RequestHandler):
         })
 
     def post(self):
+
         lat = ""
         s = self.request.get('lat_long').find('(')
         e = self.request.get('lat_long').find(',', s)
@@ -199,7 +220,19 @@ class CreateLocation(webapp2.RequestHandler):
             loc = Location(locationInfo=lat_long, name=self.request.get('location_name'), businessValues=bv)
             loc.put()
         print(lat_long +"   u0u{")
+        my_document = search.Document(
+            # Setting the doc_id is optional. If omitted, the search service will create an identifier.
+            fields=[
+                search.TextField(name='locationInfo',value = lat_long),
+                search.TextField(name='name', value = self.request.get('location_name'))
+            ])
+        try:
+            index = search.Index(name="LocationIndex")
+            index.put(my_document)
+        except search.Error:
+            print("ERROR")
         self.redirect('/details/'+str(lat)+'/'+str(lng))
+
 
 
 class UpdateAccount(webapp2.RequestHandler):
@@ -224,7 +257,7 @@ class UpdateAccount(webapp2.RequestHandler):
         name=user.nickname()
         logout=users.create_logout_url('/')
         renderTemplate(self,'static-account-registration-page.html',{
-            "account":'/account',
+            "account": '/account',
             "name": name,
             "nickname":nickname,
             "local": local,
