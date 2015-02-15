@@ -59,42 +59,43 @@ class MainPage(webapp2.RequestHandler):
     #self.response.out.write("<html><body>%s</body></html>" % greeting)
 
 class AsyncSearch(webapp2.RequestHandler):
+
     def get(self):
-        print(self.request.get('search-value')+" a--------------------------------------")
         index = search.Index(name = "LocationIndex")
-        results = index.search("name = "+self.request.get('search-value'))
+        results = index.search("name = " + self.request.get('search-value'+""))
         res = ""
         markers=[]
         print(results)
         if results:
             i = 0
-            qrystring = "SELECT * FROM Location WHERE "
+            res += "<ul style='text-align: left; width:100%; text-decoration: none;'>"
             for r in results:
-                if i == 0:
-                    qrystring += "locationInfo = '" + r.field('locationInfo').value+"'"
-                else:
-                    qrystring += " AND locationInfo = '" +  r.field('locationInfo').value+"'"
-                i+=1
-            if i > 0:
-                print(qrystring)
-                query = ndb.gql(qrystring)
-                locs = query.fetch()
-                res += "<ul style='text-align: left; width:100%'>"
-
-                for loc in locs:
-                    lat = ""
-                    s = loc.locationInfo.find('(')
-                    e = loc.locationInfo.find(',', s)
-                    lat = round(float(loc.locationInfo[s+1:e]), 6)
-                    s = loc.locationInfo.find(',')
-                    e = loc.locationInfo.find(')', s)
-                    lng = round(float(loc.locationInfo[s+1:e]), 6)
-                    markers.append({'lat': str(lat), 'lng': str(lng), 'title': loc.name})
-                    res += "<hr style='float: left;'  /><br /><a href='/details/" + str(lat) + "/" + str(lng) + "'><li style='list-style: none; font-size:18pt; text-decoration: none;'>" + loc.name + "</li></a>"
-                    res += "</ul>"
+                lat = ""
+                s = r.field('locationInfo').value.find('(')
+                e = r.field('locationInfo').value.find(',', s)
+                lat = round(float(r.field('locationInfo').value[s+1:e]), 6)
+                s = r.field('locationInfo').value.find(',')
+                e = r.field('locationInfo').value.find(')', s)
+                lng = round(float(r.field('locationInfo').value[s+1:e]), 6)
+                markers.append({'lat': str(lat), 'lng': str(lng), 'title': r.field('name').value})
+                res += "<br /><hr style='float: left; padding: 0px; margin: 0px;'  /><a href='/details/" + str(lat) + "/" + str(lng) + "' style='text-decoration: none;'><li style='list-style: none; font-size:130%; text-decoration: none; padding: 3px; margin-left: 4px;'>" + r.field('name').value + "</li></a>"
+            res += "</ul>"
+            res += '<a style="padding-top: 10px; margin-top:10px; text-decoration: none; font-size:16pt; color:#777777;" href="' + add + '"> + Create New Location </a>'
         print(res)
         data = json.dumps({'html': res,'markers': markers})
         self.response.out.write(data)
+
+    def tokenize_autocomplete(self, phrase):
+        a = []
+        for word in phrase.split():
+            j = 1
+        while True:
+            for i in range(len(word) - j + 1):
+                a.append(word[i:i + j])
+                if j == len(word):
+                    break
+                j += 1
+        return a
 
 
 class SearchPage(webapp2.RequestHandler):
@@ -121,6 +122,7 @@ class SearchPage(webapp2.RequestHandler):
 
 
 class DetailsPage(webapp2.RequestHandler):
+    @ndb.toplevel
     def get(self, lat, lng):
         global about
         global around
@@ -137,7 +139,7 @@ class DetailsPage(webapp2.RequestHandler):
         lat_long ='('+lat+', ' + lng+')';
         query = Location.query(Location.locationInfo == lat_long)
         location = query.fetch()
-        if not location:
+        if not location and len(location) == 0:
             self.redirect(add)
         val = 0
  #       for bv in location[0].businessValues:
@@ -199,9 +201,9 @@ class CreateLocation(webapp2.RequestHandler):
             "log": name,
             "about": about
         })
-
+    @ndb.toplevel
     def post(self):
-
+        global around
         lat = ""
         s = self.request.get('lat_long').find('(')
         e = self.request.get('lat_long').find(',', s)
@@ -219,7 +221,6 @@ class CreateLocation(webapp2.RequestHandler):
 
             loc = Location(locationInfo=lat_long, name=self.request.get('location_name'), businessValues=bv)
             loc.put()
-        print(lat_long +"   u0u{")
         my_document = search.Document(
             # Setting the doc_id is optional. If omitted, the search service will create an identifier.
             fields=[
@@ -231,7 +232,8 @@ class CreateLocation(webapp2.RequestHandler):
             index.put(my_document)
         except search.Error:
             print("ERROR")
-        self.redirect('/details/'+str(lat)+'/'+str(lng))
+
+        self.redirect(around)
 
 
 

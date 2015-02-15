@@ -43,7 +43,7 @@
         </div>
         <div id="rt">
             <div id="search">
-                <i class="icon-zoom-in" style="font-size: 16pt;"></i> <input class="srch" id="search-bar" type="search"><br/>
+                <i class="icon-zoom-in" style="font-size: 16pt;"></i> <input class="srch" id="search-bar" type="search"><br />
                 <span id="search-result"></span>
             </div>
             <div id="user" title="{{name}}">
@@ -185,10 +185,11 @@
                  $.ajax({
                  url: "/search/async",
                      data: {
-                        search-value: $("#search-bar-content").val()
+                        'search-value': $("#search-bar").val()
                      },
                      success: function (data) {
-                        $("#search-result").html(data['html']);
+                         dataj = JSON.parse(data)
+                        $("#search-result").html(dataj['html']);
                      }
                  });
             } else {
