@@ -127,13 +127,13 @@ class DetailsPage(webapp2.RequestHandler):
         global about
         global around
         global add
-        title_link=(users.create_logout_url('/'))
         user=users.get_current_user()
         if user:
-            log=user.nickname()
+            mail=user.email()
         else:
-            log='Please login'
             self.redirect('/')
+        q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
+        p=q.get()
         # lat = 40.442606
         # lng = -79.956686
         lat_long ='('+lat+', ' + lng+')';
@@ -152,7 +152,7 @@ class DetailsPage(webapp2.RequestHandler):
             "around": around,
             "about": about,
             "add": add,
-            "log": log,
+            "log": p.name,
             "businessValue" : val
         })
 
@@ -167,6 +167,8 @@ class ProcessForm(webapp2.RequestHandler):
         nhome = self.request.get('lat_long')
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
+        coord=nhome
+        log=nname
         if not p:
             u=Account(email=user.email(), name=nname, home=nhome)
             u.put()
@@ -175,12 +177,13 @@ class ProcessForm(webapp2.RequestHandler):
             p.home=nhome
             p.put()
 
-        renderTemplate(self, 'static-postupdate-page.html', {
-            "log": log,
+        renderTemplate(self,'static-search-page.html', {
             "title_link": '/account',
+            "around": around,
+            "message": log,
             "about": about,
-            "around": around,			
-            "add": add			 
+            "add": add,
+            "coord": coord		 
         })
 
 
@@ -189,11 +192,14 @@ class CreateLocation(webapp2.RequestHandler):
         global about
         global around
         global add
-        title_link=(users.create_logout_url('/'))
         user=users.get_current_user()
         if not user:
             self.redirect('/')
-        name=user.nickname()
+        mail=user.email()		
+        q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
+        p=q.get()
+        name=p.name
+        title_link=('/account')
         renderTemplate(self,'static-location-creation-page.html', {
             "title_link": '/account',
             "around": around,
@@ -260,7 +266,7 @@ class UpdateAccount(webapp2.RequestHandler):
         logout=users.create_logout_url('/')
         renderTemplate(self,'static-account-registration-page.html',{
             "account": '/account',
-            "name": name,
+            "name": nickname,
             "nickname":nickname,
             "local": local,
             "logout": logout,
