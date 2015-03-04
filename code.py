@@ -1,11 +1,10 @@
 import os
 import webapp2
-import unicodedata
 from google.appengine.ext.webapp import template
 from google.appengine.api import users
-from google.appengine.ext import db
 from google.appengine.ext import ndb
 from google.appengine.api import search
+from google.appengine.api import memcache
 import json
 import re
 
@@ -140,6 +139,18 @@ class DetailsPage(webapp2.RequestHandler):
         if not location and len(location) == 0:
             self.redirect(add)
         val = 0
+        hLatBound = float(lat) + .10
+        lLatBound = float(lat) - .10
+        hLngBound = float(lng) + .10
+        lLngBound = float(lng) - .10
+        qry1 = Location.query()
+        qry2 = qry1.filter(Location.latitude > lLatBound)
+        qry3 = qry2.filter(Location.latitude < hLatBound)
+        locality = qry3.fetch()
+        l = []
+        for k in locality:
+            if lLngBound < k.longitude and k.longitude < hLngBound:
+                l.append(k)
  #       for bv in location[0].businessValues:
         val += location[0].businessValues.value
 
@@ -151,7 +162,8 @@ class DetailsPage(webapp2.RequestHandler):
             "about": about,
             "add": add,
             "log": p.name,
-            "businessValue" : val
+            "businessValue" : val,
+            "locality": l
         })
 
 
@@ -193,9 +205,9 @@ class CreateLocation(webapp2.RequestHandler):
         user=users.get_current_user()
         if not user:
             self.redirect('/')
-        mail=user.email()		
+        mail = user.email()
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
-        p=q.get()
+        p = q.get()
         name=p.name
         title_link=('/account')
         renderTemplate(self,'static-location-creation-page.html', {
@@ -223,7 +235,7 @@ class CreateLocation(webapp2.RequestHandler):
         else:
             bv = BusinessValue(value=5)
 
-            loc = Location(locationInfo=lat_long, name=self.request.get('location_name'), businessValues=bv)
+            loc = Location(latitude=lat, longitude=lng, locationInfo=lat_long, name=self.request.get('location_name'), businessValues=bv)
             loc.put()
         my_document = search.Document(
             # Setting the doc_id is optional. If omitted, the search service will create an identifier.
@@ -238,7 +250,6 @@ class CreateLocation(webapp2.RequestHandler):
             print("ERROR")
 
         self.redirect(around)
-
 
 
 class UpdateAccount(webapp2.RequestHandler):
@@ -260,7 +271,7 @@ class UpdateAccount(webapp2.RequestHandler):
             nickname=p.name
             local=p.home
             latlong=local
-        name=user.nickname()
+        name = user.nickname()
         logout=users.create_logout_url('/')
         renderTemplate(self,'static-account-registration-page.html',{
             "account": '/account',
@@ -288,11 +299,11 @@ class BusinessValue(ndb.Model):
 
 
 class Location(ndb.Model):
+    latitude = ndb.FloatProperty(required=True)
+    longitude = ndb.FloatProperty(required=True)
     locationInfo = ndb.StringProperty(required=True)
     name = ndb.StringProperty(required=True)
     businessValues = ndb.StructuredProperty(BusinessValue,required=True)
-
-
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
