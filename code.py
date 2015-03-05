@@ -149,7 +149,7 @@ class DetailsPage(webapp2.RequestHandler):
         locality = qry3.fetch()
         l = []
         for k in locality:
-            if lLngBound < k.longitude and k.longitude < hLngBound:
+            if lLngBound < k.longitude and k.longitude < hLngBound and k.locationInfo != lat_long:
                 l.append(k)
  #       for bv in location[0].businessValues:
         val += location[0].businessValues.value
@@ -285,6 +285,33 @@ class UpdateAccount(webapp2.RequestHandler):
             "ll":latlong
         })
 
+class AboutUs(webapp2.RequestHandler):
+    def get(self):
+        global about
+        global around
+        global add
+        user=users.get_current_user()
+        mail=user.email()
+        if not user:
+            self.redirect('/')
+        q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
+        p=q.get()
+        if not p:
+            nickname=''
+        else:
+            nickname=p.name
+        name = user.nickname()
+        logout=users.create_logout_url('/')
+        renderTemplate(self,'about-page.html', {
+            "account": '/account',
+            "name": nickname,
+            "nickname": nickname,
+            "logout": logout,
+            "about": about,
+            "around": around,
+            "add": add,
+        })
+
 
 class Account(ndb.Model):
     name = ndb.StringProperty(required=True)
@@ -312,10 +339,11 @@ app = webapp2.WSGIApplication([
     ('/search', SearchPage),
     ('/update', ProcessForm),
     ('/account', UpdateAccount),
-    ('/create', CreateLocation)
+    ('/create', CreateLocation),
+    ('/about', AboutUs)
 ], debug=True)
 
 dummy='test'
 around = '/search'
-about = '/details/40.442573/-79.956675'
+about = '/about'
 add = '/create'
