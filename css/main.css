@@ -26,8 +26,6 @@ button {
     border:none;
 }
 
-
-
 button:hover {
     border: none;
     background: #607D8B;
@@ -40,7 +38,6 @@ button:hover {
     display: inline-block;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
     margin-bottom: 15px;
-    overflow: hidden;
 }
 
 #menu-bar #logo {
@@ -345,7 +342,10 @@ button:hover {
 }
 
 #search-content {
-    padding: 20px;
+    padding-top: 20px;
+    padding-bottom: 0px;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 #search-result a {
@@ -355,6 +355,7 @@ button:hover {
 }
 
 #search-field {
+    padding-bottom: 20px;
     text-overflow: ellipsis;
 }
 

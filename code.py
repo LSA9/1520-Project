@@ -66,7 +66,7 @@ class AsyncSearch(webapp2.RequestHandler):
         markers=[]
         if results:
             i = 0
-            res += "<ul style='text-align: left; width:100%; text-decoration: none;'>"
+            res += "<ul style='text-align: left; width:100%; text-decoration: none; padding-top: 0; margin-top: 0;'>"
             for r in results:
                 lat = ""
                 s = r.field('locationInfo').value.find('(')
