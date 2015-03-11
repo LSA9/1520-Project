@@ -179,23 +179,28 @@
         // Add the circle for this city to the map.
         var cityCircle = new google.maps.Circle(populationOptions);
         {% for l in locality %}
-            var marker = new google.maps.Marker({
-                position: new google.maps.LatLng{{ l.locationInfo }},
-                map: map,
-                title:"{{ l.name }}"
-            });
             populationOptions = {
-            strokeColor: '#111111',
-            strokeOpacity: 0.5,
-            strokeWeight: 1,
-            fillColor: '#009900',
-            fillOpacity: 0.35,
-            map: map,
-            center:  new google.maps.LatLng({{ l.latitude }}, {{ l.longitude }}),
-            radius: 15
+                strokeColor: '#111111',
+                strokeOpacity: 0.5,
+                strokeWeight: 1,
+                fillColor: '#009900',
+                fillOpacity: 0.35,
+                map: map,
+                center:  new google.maps.LatLng({{ l.latitude }}, {{ l.longitude }}),
+                radius: 15
             };
+
             // Add the circle for this city to the map.
             cityCircle = new google.maps.Circle(populationOptions);
+            google.maps.event.addListener(cityCircle, 'click', function () {
+                window.location = "/details/"+{{ l.latitude }}+"/"+{{ l.longitude }};
+            });
+            var marker = new google.maps.Marker({
+                position: new google.maps.LatLng({{ l.latitude }}, {{ l.longitude }}),
+                map: map,
+                title: "{{ l.name }}"
+            });
+            marker.setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png')
         {% endfor %}
     }
     google.maps.event.addDomListener(window, 'load', initialize);

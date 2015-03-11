@@ -61,12 +61,12 @@ class AsyncSearch(webapp2.RequestHandler):
     def get(self):
         index = search.Index(name = "LocationIndex")
 
-        results = index.search("name = " +self.request.get('search-value'))
+        results = index.search("name = " + self.request.get('search-value') + " OR address = " + self.request.get('search-value'))
         res = ""
         markers=[]
         if results:
             i = 0
-            res += "<ul style='text-align: left; width:100%; text-decoration: none; padding-top: 0; margin-top: 0;'>"
+            res += "<ul style='text-align: left; text-decoration: none; padding-top: 0; margin-top: 0;'>"
             for r in results:
                 lat = ""
                 s = r.field('locationInfo').value.find('(')
@@ -76,10 +76,13 @@ class AsyncSearch(webapp2.RequestHandler):
                 e = r.field('locationInfo').value.find(')', s)
                 lng = round(float(r.field('locationInfo').value[s+1:e]), 6)
                 markers.append({'lat': str(lat), 'lng': str(lng), 'title': r.field('name').value})
-                res += "<br /><hr style='float: left; padding: 0px; margin: 0px;'  /><a href='/details/" + str(lat) + "/" + str(lng) + "' style='text-decoration: none;'><li style='list-style: none; font-size:130%; text-decoration: none; padding: 3px; margin-left: 4px;'>" + r.field('name').value + "</li></a>"
+                res += "<br /><hr style='float: left; padding: 0px; margin: 0px;' /><a class='result' value='" + str(r.field('locationInfo').value) + "' href='/details/" + str(lat) + "/" + str(lng) + "' style='text-decoration: none; width: auto;'><li style='list-style: none; font-size:130%; text-decoration: none; padding: 3px; margin-left: 4px;'>" + r.field('name').value + "</li></a>"
+                if i > 10:
+                    break
+                i+=1
             res += "</ul>"
             res += '<a style="padding-top: 10px; margin-top:10px; text-decoration: none; font-size:16pt; color:#777777;" href="' + add + '"> + Create New Location </a>'
-        data = json.dumps({'html': res,'markers': markers})
+        data = json.dumps({'html': res, 'markers': markers})
         self.response.out.write(data)
 
     def tokenize_autocomplete(self, phrase):
@@ -241,7 +244,8 @@ class CreateLocation(webapp2.RequestHandler):
             # Setting the doc_id is optional. If omitted, the search service will create an identifier.
             fields=[
                 search.TextField(name='locationInfo',value = lat_long),
-                search.TextField(name='name', value = self.request.get('location_name'))
+                search.TextField(name='name', value = self.request.get('location_name')),
+                search.TextField(name='address', value= self.request.get('address'))
             ])
         try:
             index = search.Index(name="LocationIndex")
