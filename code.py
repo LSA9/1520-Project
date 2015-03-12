@@ -253,7 +253,17 @@ class CreateLocation(webapp2.RequestHandler):
         except search.Error:
             print("ERROR")
 
-        self.redirect(around)
+        i = 0
+        query = Location.query(Location.locationInfo == lat_long)
+        location = query.fetch()
+        while not location:
+            query = Location.query(Location.locationInfo == lat_long)
+            location = query.fetch()
+            if i > 100000:
+                self.redirect(around)
+            i+=1
+
+        self.redirect('/details/'+str(lat)+'/'+str(lng))
 
 
 class UpdateAccount(webapp2.RequestHandler):
