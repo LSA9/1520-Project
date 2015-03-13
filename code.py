@@ -118,7 +118,10 @@ class SearchPage(webapp2.RequestHandler):
             "message": log,
             "about": about,
             "add": add,
-            "coord": coord
+            "coord": coord,
+            "fav1":p.favorite[0],
+            "fav2":p.favorite[1],
+            "fav3":p.favorite[2]
         })
 
 
@@ -179,16 +182,22 @@ class ProcessForm(webapp2.RequestHandler):
         global around,about,add
         nname = self.request.get('username')
         nhome = self.request.get('lat_long')
+        nfav1=self.request.get('fav1')
+        nfav2=self.request.get('fav2')
+        nfav3=self.request.get('fav3')		
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
         coord=nhome
         log=nname
         if not p:
-            u=Account(email=user.email(), name=nname, home=nhome)
+            u=Account(email=user.email(), name=nname, home=nhome,favorite=[nfav1,nfav2,nfav3])
             u.put()
         else:
             p.name=nname
             p.home=nhome
+            p.favorite[0]=nfav1
+            p.favorite[1]=nfav2
+            p.favorite[2]=nfav3			
             p.put()
 
         renderTemplate(self,'static-search-page.html', {
@@ -197,7 +206,10 @@ class ProcessForm(webapp2.RequestHandler):
             "message": log,
             "about": about,
             "add": add,
-            "coord": coord		 
+            "coord": coord,
+            "fav1":p.favorite[0],
+            "fav2":p.favorite[1],
+            "fav3":p.favorite[2]			
         })
 
 
@@ -282,10 +294,16 @@ class UpdateAccount(webapp2.RequestHandler):
             nickname=''
             local=''
             latlong="(40.442606, -79.956686)"
+            f1=""
+            f2=""			
+            f3=""			
         else:
             nickname=p.name
             local=p.home
             latlong=local
+            f1=p.favorite[0]			
+            f2=p.favorite[1]			
+            f3=p.favorite[2]			
         name = user.nickname()
         logout=users.create_logout_url('/')
         renderTemplate(self,'static-account-registration-page.html',{
@@ -297,7 +315,10 @@ class UpdateAccount(webapp2.RequestHandler):
             "about": about,
             "around": around,
             "add": add,
-            "ll":latlong
+            "ll":latlong,
+            "f1":f1,
+            "f2":f2,
+            "f3":f3			
         })
 
 class AboutUs(webapp2.RequestHandler):
@@ -350,6 +371,8 @@ class Account(ndb.Model):
     name = ndb.StringProperty(required=True)
     email = ndb.StringProperty(required=True)
     home = ndb.StringProperty(required=True)
+    favorite=ndb.StringProperty(repeated=True)	
+	
 
 
 class BusinessValue(ndb.Model):

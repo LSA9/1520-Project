@@ -61,7 +61,12 @@
 					<br>
                     <hr style="width: 100%; float: left;">
                     <br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;Home Address <span style="font-size: 7pt; color: #737373;">Please search and select a pin from the map.</span><br>&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;<select id="sel">
+  <option value="home address">Home Address</option>
+  <option value="favorite 1">Favorite 1</option>
+  <option value="favorite 2">Favorite 2</option>
+  <option value="favorite 3">Favorite 3</option>
+</select> <span style="font-size: 7pt; color: #737373;">Please search and select a pin from the map.</span><br>&nbsp;&nbsp;&nbsp;&nbsp;
                     <div id="location-creation-map">
                         <input id="pac-input" class="controls" type="text" placeholder="Search and Select Marker">
 
@@ -71,7 +76,10 @@
                     <br>
 					&nbsp;&nbsp;&nbsp;&nbsp;<input style="background-color: #9e9e9e; border: solid #737373 thin; " type="text" value="" name="update" id="update">
                     <br>
-                    <input type="text" style="display:none;" value="" name="lat_long" id="latlng" value="">
+                    <input type="text" style="display:none;" name="lat_long" id="latlng" value="{{ll}}">
+					<input type="text" style="display:none;" name="fav1" id="fav1" value="{{f1}}">
+					<input type="text" style="display:none;" name="fav2" id="fav2" value="{{f2}}">
+					<input type="text" style="display:none;" name="fav3" id="fav3" value="{{f3}}">
                     <br>
 					&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" value="Update Profile"> 
                 </form>
@@ -101,18 +109,14 @@
         });
         $("#reg_form").validate({
             rules: {
-                update: {
-                    required: true
-                },
+  
                 username: {
                     required: true,
                     minlength: 2
                 }
             },
             messages: {
-                update: {
-                    required: " <br>&nbsp;&nbsp;&nbsp;Please select a pin from the map as your home area!"
-                },
+                
                 username: {
                     required: " <br>&nbsp;&nbsp;&nbsp;Please give us something over 2 letters to informally call you by!"
                 }
@@ -162,7 +166,23 @@
                 });
                 marker.setVisible(true);
                 google.maps.event.addListener(marker, 'click', function () {
-                    $("#latlng").val(place.geometry.location);
+                    var e=document.getElementById("sel");
+					var option=e.options[e.selectedIndex].value;
+					if(option=="home address"){
+					$("#latlng").val(place.geometry.location);}
+					
+					else if(option=="favorite 1"){
+					alert(document.getElementById("fav1").value);
+					$("#fav1").val(place.geometry.location);
+					alert(document.getElementById("fav1").value);
+					}
+					else if(option=="favorite 2"){
+					$("#fav2").val(place.geometry.location);
+					}
+					else if(option=="favorite 3"){
+					$("#fav3").val(place.geometry.location);
+					}
+					
 					$("#update").val("Home Location Updated");
                 });
             });
