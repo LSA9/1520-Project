@@ -1,11 +1,11 @@
 import os
 import webapp2
-import unicodedata
 from google.appengine.ext.webapp import template
 from google.appengine.api import users
-from google.appengine.ext import db
 from google.appengine.ext import ndb
 from google.appengine.api import search
+from google.appengine.api import mail
+from google.appengine.api import memcache
 import json
 import re
 
@@ -62,12 +62,12 @@ class AsyncSearch(webapp2.RequestHandler):
     def get(self):
         index = search.Index(name = "LocationIndex")
 
-        results = index.search("name = " +self.request.get('search-value'))
+        results = index.search("name = " + self.request.get('search-value') + " OR address = " + self.request.get('search-value'))
         res = ""
         markers=[]
         if results:
             i = 0
-            res += "<ul style='text-align: left; width:100%; text-decoration: none;'>"
+            res += "<ul style='text-align: left; text-decoration: none; padding-top: 0; margin-top: 0;'>"
             for r in results:
                 lat = ""
                 s = r.field('locationInfo').value.find('(')
@@ -77,10 +77,13 @@ class AsyncSearch(webapp2.RequestHandler):
                 e = r.field('locationInfo').value.find(')', s)
                 lng = round(float(r.field('locationInfo').value[s+1:e]), 6)
                 markers.append({'lat': str(lat), 'lng': str(lng), 'title': r.field('name').value})
-                res += "<br /><hr style='float: left; padding: 0px; margin: 0px;'  /><a href='/details/" + str(lat) + "/" + str(lng) + "' style='text-decoration: none;'><li style='list-style: none; font-size:130%; text-decoration: none; padding: 3px; margin-left: 4px;'>" + r.field('name').value + "</li></a>"
+                res += "<br /><hr style='float: left; padding: 0px; margin: 0px;' /><a class='result' value='" + str(r.field('locationInfo').value) + "' href='/details/" + str(lat) + "/" + str(lng) + "' style='text-decoration: none; width: auto;'><li style='list-style: none; font-size:130%; text-decoration: none; padding: 3px; margin-left: 4px;'>" + r.field('name').value + "</li></a>"
+                if i > 10:
+                    break
+                i+=1
             res += "</ul>"
             res += '<a style="padding-top: 10px; margin-top:10px; text-decoration: none; font-size:16pt; color:#777777;" href="' + add + '"> + Create New Location </a>'
-        data = json.dumps({'html': res,'markers': markers})
+        data = json.dumps({'html': res, 'markers': markers})
         self.response.out.write(data)
 
     def tokenize_autocomplete(self, phrase):
@@ -140,6 +143,18 @@ class DetailsPage(webapp2.RequestHandler):
         if not location and len(location) == 0:
             self.redirect(add)
         val = 0
+        hLatBound = float(lat) + .10
+        lLatBound = float(lat) - .10
+        hLngBound = float(lng) + .10
+        lLngBound = float(lng) - .10
+        qry1 = Location.query()
+        qry2 = qry1.filter(Location.latitude > lLatBound)
+        qry3 = qry2.filter(Location.latitude < hLatBound)
+        locality = qry3.fetch()
+        l = []
+        for k in locality:
+            if lLngBound < k.longitude and k.longitude < hLngBound and k.locationInfo != lat_long:
+                l.append(k)
  #       for bv in location[0].businessValues:
         val += location[0].businessValues.value
 
@@ -151,7 +166,8 @@ class DetailsPage(webapp2.RequestHandler):
             "about": about,
             "add": add,
             "log": p.name,
-            "businessValue" : val
+            "businessValue" : val,
+            "locality": l
         })
 
 
@@ -193,9 +209,9 @@ class CreateLocation(webapp2.RequestHandler):
         user=users.get_current_user()
         if not user:
             self.redirect('/')
-        mail=user.email()		
+        mail = user.email()
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
-        p=q.get()
+        p = q.get()
         name=p.name
         title_link=('/account')
         renderTemplate(self,'static-location-creation-page.html', {
@@ -223,13 +239,14 @@ class CreateLocation(webapp2.RequestHandler):
         else:
             bv = BusinessValue(value=5)
 
-            loc = Location(locationInfo=lat_long, name=self.request.get('location_name'), businessValues=bv)
+            loc = Location(latitude=lat, longitude=lng, locationInfo=lat_long, name=self.request.get('location_name'), businessValues=bv)
             loc.put()
         my_document = search.Document(
             # Setting the doc_id is optional. If omitted, the search service will create an identifier.
             fields=[
                 search.TextField(name='locationInfo',value = lat_long),
-                search.TextField(name='name', value = self.request.get('location_name'))
+                search.TextField(name='name', value = self.request.get('location_name')),
+                search.TextField(name='address', value= self.request.get('address'))
             ])
         try:
             index = search.Index(name="LocationIndex")
@@ -237,8 +254,17 @@ class CreateLocation(webapp2.RequestHandler):
         except search.Error:
             print("ERROR")
 
-        self.redirect(around)
+        i = 0
+        query = Location.query(Location.locationInfo == lat_long)
+        location = query.fetch()
+        while not location:
+            query = Location.query(Location.locationInfo == lat_long)
+            location = query.fetch()
+            if i > 100000:
+                self.redirect(around)
+            i+=1
 
+        self.redirect('/details/'+str(lat)+'/'+str(lng))
 
 
 class UpdateAccount(webapp2.RequestHandler):
@@ -260,7 +286,7 @@ class UpdateAccount(webapp2.RequestHandler):
             nickname=p.name
             local=p.home
             latlong=local
-        name=user.nickname()
+        name = user.nickname()
         logout=users.create_logout_url('/')
         renderTemplate(self,'static-account-registration-page.html',{
             "account": '/account',
@@ -273,6 +299,51 @@ class UpdateAccount(webapp2.RequestHandler):
             "add": add,
             "ll":latlong
         })
+
+class AboutUs(webapp2.RequestHandler):
+    def get(self):
+        global about
+        global around
+        global add
+        user=users.get_current_user()
+        mail=user.email()
+        if not user:
+            self.redirect('/')
+        q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
+        p=q.get()
+        if not p:
+            nickname=''
+        else:
+            nickname=p.name
+        name = user.nickname()
+        logout=users.create_logout_url('/')
+        renderTemplate(self,'about-page.html', {
+            "account": '/account',
+            "name": nickname,
+            "nickname": nickname,
+            "logout": logout,
+            "about": about,
+            "around": around,
+            "add": add,
+        })
+
+
+class ContactUs(webapp2.RedirectHandler):
+    def get(self):
+        self.redirect('/about')
+
+    def post(self):
+        user_addr = self.request.get('email')
+        email = ""
+        if not mail.is_email_valid(user_addr):
+            email += "No valid return address.\n"
+        else:
+            email += "Return Address: " + user_addr + "\n"
+        email += "Name: " + self.request.get('name') + "\n"
+        email += "Comment: " + self.request.get('content')
+        print(email)
+        mail.send_mail("gaggle1520@gmail.com", "gaggle1520@gmail.com", "Comment from "+self.request.get('name'), email)
+        self.redirect('/about')
 
 
 class Account(ndb.Model):
@@ -288,11 +359,11 @@ class BusinessValue(ndb.Model):
 
 
 class Location(ndb.Model):
+    latitude = ndb.FloatProperty(required=True)
+    longitude = ndb.FloatProperty(required=True)
     locationInfo = ndb.StringProperty(required=True)
     name = ndb.StringProperty(required=True)
     businessValues = ndb.StructuredProperty(BusinessValue,required=True)
-
-
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
@@ -301,10 +372,12 @@ app = webapp2.WSGIApplication([
     ('/search', SearchPage),
     ('/update', ProcessForm),
     ('/account', UpdateAccount),
-    ('/create', CreateLocation)
+    ('/create', CreateLocation),
+    ('/about/contact', ContactUs),
+    ('/about', AboutUs)
 ], debug=True)
 
 dummy='test'
 around = '/search'
-about = '/details/40.442573/-79.956675'
+about = '/about'
 add = '/create'
