@@ -241,8 +241,10 @@
         $("#content").click(function () {
             $("#search-result").html("");
         });
+        var c = 0;
         function searchVal() {
-            if ($("#search-bar").val() != "") {
+            c++;
+            if ($("#search-bar").val() != "" && c > 3) {
                  $.ajax({
                  url: "/search/async",
                      data: {
@@ -269,7 +271,6 @@
             var g = Math.floor(((10 - $("#crowd-slide").val()) / 10) * 255);
             var r = Math.floor((($("#crowd-slide").val()) / 10) * 255);
             $("#range").html('<span style="color: rgb(' + r + ',' + g + ',0);">' + $("#crowd-slide").val() + '</span>')
-            $("#crowd-slide").css('background-color', 'rgb(' + r + ',' + g + ',0)');
         });
         // Initialize the plugin
             $('#my_popup').css('display', 'block');

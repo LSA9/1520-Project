@@ -124,10 +124,11 @@
         return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
     }
     $(document).ready(function () {
-
+        var c = 0;
         $("#search-bar-content").on('input', function () {
+            c++;
             var re1=/\w+/;
-            if($("#search-bar-content").val() != "" && re1.test($("#search-bar-content").val())){
+            if($("#search-bar-content").val() != "" && re1.test($("#search-bar-content").val()) && c > 3){
                 $.ajax({
                     url: "/search/async",
                     data: {

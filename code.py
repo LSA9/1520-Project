@@ -4,6 +4,7 @@ from google.appengine.ext.webapp import template
 from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.api import search
+from google.appengine.api import mail
 from google.appengine.api import memcache
 import json
 import re
@@ -327,6 +328,24 @@ class AboutUs(webapp2.RequestHandler):
         })
 
 
+class ContactUs(webapp2.RedirectHandler):
+    def get(self):
+        self.redirect('/about')
+
+    def post(self):
+        user_addr = self.request.get('email')
+        email = ""
+        if not mail.is_email_valid(user_addr):
+            email += "No valid return address.\n"
+        else:
+            email += "Return Address: " + user_addr + "\n"
+        email += "Name: " + self.request.get('name') + "\n"
+        email += "Comment: " + self.request.get('content')
+        print(email)
+        mail.send_mail("gaggle1520@gmail.com", "gaggle1520@gmail.com", "Comment from "+self.request.get('name'), email)
+        self.redirect('/about')
+
+
 class Account(ndb.Model):
     name = ndb.StringProperty(required=True)
     email = ndb.StringProperty(required=True)
@@ -354,6 +373,7 @@ app = webapp2.WSGIApplication([
     ('/update', ProcessForm),
     ('/account', UpdateAccount),
     ('/create', CreateLocation),
+    ('/about/contact', ContactUs),
     ('/about', AboutUs)
 ], debug=True)
 
