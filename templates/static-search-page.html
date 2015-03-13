@@ -110,13 +110,15 @@
         google.maps.event.addListener(cityCircle, 'click', function () {
              window.location = "/details/"+lat+"/"+long;
         });
+		google.maps.event.addListener(marker, 'click', function () {
+             window.location = "/details/"+lat+"/"+long;
+        });
     }
     google.maps.event.addDomListener(window, 'load', initialize);
 
     $(document).ready(function () {
         $("#search-bar-content").on('input', function () {
             if($("#search-bar-content").val() != ""){
-                $("#search-result-content").html("Search results for: " +$("#search-bar-content").val()+"<br /><br />");
                 $.ajax({
                     url: "/search/async",
                     data: {
