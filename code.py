@@ -110,7 +110,11 @@ class SearchPage(webapp2.RequestHandler):
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
         title_link=('/account')
-        
+        favs = []
+        for f in p.favorite:
+            query = Location.query(Location.locationInfo == f)
+            location = query.fetch()
+            favs.append(location[0])
         log=p.name
         coord=p.home		
         renderTemplate(self,'static-search-page.html', {
@@ -120,9 +124,7 @@ class SearchPage(webapp2.RequestHandler):
             "about": about,
             "add": add,
             "coord": coord,
-            "fav1":p.favorite[0],
-            "fav2":p.favorite[1],
-            "fav3":p.favorite[2]
+            "favorites": favs
         })
 
 
@@ -161,28 +163,42 @@ class DetailsPage(webapp2.RequestHandler):
                 l.append(k)
  #       for bv in location[0].businessValues:
         val += location[0].businessValues.value
-        commentvalue = self.request.get("commentText")
-        comments = location.messageList
-        if commentvalue:
-            location.messageList.append(MessagePost(user = user1.nickname(),
-                                                    message = commentvalue,
-                                                    time = datetime.datetime.now()))
+        comments = location[0].messageList
 
 
+        favs = ["(40.442606, -79.956686)"]
+        if p.favorite:
+            favs = p.favorite
         renderTemplate(self,'static-information-page.html', {
             "location_name": location[0].name,
             "location_latlng": lat_long,
+            "location_lat": lat,
+            "location_lng": lng,
             "title_link": '/account',
             "around": around,
             "about": about,
             "add": add,
             "log": p.name,
-            "businessValue" : val,
+            "businessValue": val,
             "locality": l,
-            "messageList" : comments
+            "messageList": comments,
+            "favorites": p.favorite
         })
 
 
+class PostComment(webapp2.RequestHandler):
+    def post(self, lat, lng):
+        lat_long ='('+lat+', ' + lng+')'
+        query = Location.query(Location.locationInfo == lat_long)
+        location = query.fetch()
+        user=users.get_current_user()
+        mail=user.email()
+        q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
+        p=q.get()
+        mp = MessagePost(user=p.name, time="12:27 pm 3/16/2015", message=self.request.get("msg"))
+        location[0].messageList.append(mp)
+        location[0].put()
+        self.redirect("/details/"+lat+"/"+lng)
 
 class ProcessForm(webapp2.RequestHandler):
     def post(self):
@@ -192,22 +208,16 @@ class ProcessForm(webapp2.RequestHandler):
         global around,about,add
         nname = self.request.get('username')
         nhome = self.request.get('lat_long')
-        nfav1=self.request.get('fav1')
-        nfav2=self.request.get('fav2')
-        nfav3=self.request.get('fav3')		
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
         coord=nhome
         log=nname
         if not p:
-            u=Account(email=user.email(), name=nname, home=nhome,favorite=[nfav1,nfav2,nfav3])
+            u=Account(email=user.email(), name=nname, home=nhome, favorite=[])
             u.put()
         else:
             p.name=nname
             p.home=nhome
-            p.favorite[0]=nfav1
-            p.favorite[1]=nfav2
-            p.favorite[2]=nfav3			
             p.put()
 
         renderTemplate(self,'static-search-page.html', {
@@ -217,9 +227,6 @@ class ProcessForm(webapp2.RequestHandler):
             "about": about,
             "add": add,
             "coord": coord,
-            "fav1":p.favorite[0],
-            "fav2":p.favorite[1],
-            "fav3":p.favorite[2]			
         })
 
 
@@ -261,7 +268,7 @@ class CreateLocation(webapp2.RequestHandler):
         else:
             bv = BusinessValue(value=5)
 
-            loc = Location(latitude=lat, longitude=lng, locationInfo=lat_long, name=self.request.get('location_name'), businessValues=bv)
+            loc = Location(latitude=lat, longitude=lng, locationInfo=lat_long, name=self.request.get('location_name'), messageList=[], businessValues=bv)
             loc.put()
         my_document = search.Document(
             # Setting the doc_id is optional. If omitted, the search service will create an identifier.
@@ -304,16 +311,11 @@ class UpdateAccount(webapp2.RequestHandler):
             nickname=''
             local=''
             latlong="(40.442606, -79.956686)"
-            f1=""
-            f2=""			
-            f3=""			
         else:
             nickname=p.name
             local=p.home
             latlong=local
-            f1=p.favorite[0]			
-            f2=p.favorite[1]			
-            f3=p.favorite[2]			
+
         name = user.nickname()
         logout=users.create_logout_url('/')
         renderTemplate(self,'static-account-registration-page.html',{
@@ -326,9 +328,6 @@ class UpdateAccount(webapp2.RequestHandler):
             "around": around,
             "add": add,
             "ll":latlong,
-            "f1":f1,
-            "f2":f2,
-            "f3":f3			
         })
 
 class AboutUs(webapp2.RequestHandler):
@@ -358,6 +357,23 @@ class AboutUs(webapp2.RequestHandler):
             "add": add,
         })
 
+class AsyncFavoriteAdd(webapp2.RequestHandler):
+    def post(self):
+        global about
+        global around
+        global add
+        user=users.get_current_user()
+        mail=user.email()
+        if not user:
+            self.redirect('/')
+        q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
+        p=q.get()
+        if p:
+            p.favorite.append("(" + self.request.get("lat") + ", " + self.request.get("lng") + ")")
+            p.put()
+
+
+
 
 class ContactUs(webapp2.RedirectHandler):
     def get(self):
@@ -382,7 +398,6 @@ class Account(ndb.Model):
     email = ndb.StringProperty(required=True)
     home = ndb.StringProperty(required=True)
     favorite=ndb.StringProperty(repeated=True)	
-	
 
 
 class BusinessValue(ndb.Model):
@@ -390,21 +405,24 @@ class BusinessValue(ndb.Model):
     comment = ndb.StringProperty()
     user = ndb.UserProperty()
 
+class MessagePost(ndb.Model):
+    message = ndb.StringProperty(required=True)
+    user = ndb.StringProperty(required=True)
+    time = ndb.StringProperty(required=True)
+
 class Location(ndb.Model):
     latitude = ndb.FloatProperty(required=True)
     longitude = ndb.FloatProperty(required=True)
     locationInfo = ndb.StringProperty(required=True)
     name = ndb.StringProperty(required=True)
     businessValues = ndb.StructuredProperty(BusinessValue,required=True)
-    messageList = ndb.StructuredProperty(MessagePost,required=True,repeated=True)
+    messageList = ndb.StructuredProperty(MessagePost, repeated=True)
 
-class MessagePost(ndb.Model):
-    message = ndb.StringProperty(required=True)
-    user = ndb.StringProperty(required=True)
-    time = ndb.DateTimeProperty(required=True)
+
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
+    ('/comment/details/([^/]+)/([^/]+)', PostComment),
     ('/details/([^/]+)/([^/]+)', DetailsPage),
     ('/search/async', AsyncSearch),
     ('/search', SearchPage),
@@ -412,7 +430,8 @@ app = webapp2.WSGIApplication([
     ('/account', UpdateAccount),
     ('/create', CreateLocation),
     ('/about/contact', ContactUs),
-    ('/about', AboutUs)
+    ('/about', AboutUs),
+    ('/favorite', AsyncFavoriteAdd)
 ], debug=True)
 
 dummy='test'

@@ -59,6 +59,12 @@
     <div id="content">
        <div id="top-left">
             <div id="loc-info">
+
+                {% if location_latlng not in favorites %}
+                    <span id="fav" style="cursor: pointer; padding-left: 5px; float: left; font-size: 8pt; vertical-align: middle; color: #9e9e9e;"><i id="fav_ic" class="icon-toggle-off" style="font-size: 16pt;"></i><br>Add to Favorites</span>
+                {% else %}
+                    <span id="no_fav" style="padding-left: 5px; float: left; font-size: 8pt;vertical-align: middle;color: #FFB300;"><i class="icon-toggle-on" style="font-size: 16pt; float: left;"></i><br>Favorited</span>
+                {% endif %}
                 <div class="title">{{location_name}}<br>
                     <hr>
                 </div>
@@ -106,12 +112,12 @@
              <div id="loc-comments">
                 <ul>
                     <li>
-                        <form>
                             <div class="comment" style="background-color: #E0E0E0;">
+                                <form method="post" action="/comment/details/{{ location_lat }}/{{ location_lng }}">
                                 <div class="comment-user" style="text-align: center; padding-top: 0px;"><span style="font-size: 14pt;">Create Comment</span></div>
-                                <div class="comment-content"  style="padding:0;"><input type="text" style="height: 54px;width:60%;"><input type="submit" value="Create" style="height: 60px; width:60px;"></div>
+                                <div class="comment-content"  style="padding:0;"><input type="text" style="height: 54px;width:60%;" name="msg"><input type="submit" value="Create" style="height: 60px; width:60px;"></div>
+                                </form>
                             </div>
-                        </form>
                     </li>
 
 
@@ -124,7 +130,10 @@
                             <div class="comment-content">{{message.message}}</div>
                         </div>
                     </li>
-                    {% end for %}
+                    {% endfor %}
+                    {% for p in favorites %}
+                    {{ p }}
+                    {% endfor %}
 
                     <!--
                     <li>
@@ -282,6 +291,23 @@
                 focusdelay: 400, // optional
                 vertical: 'top' //optional
             });
+        var is_favorited_during_session = false;
+       $("#fav").click(function(){
+            if(!is_favorited_during_session){
+                $.post("/favorite",
+                    {
+                        'lat': {{ location_lat }},
+                        'lng': {{ location_lng }}
+                    },
+                    function(data) {
+                        $("#fav").html('<span id="no_fav" style="padding-left: 5px; float: left; font-size: 8pt;vertical-align: middle;color: #999999;"><i class="icon-toggle-on" style="font-size: 16pt; float: left;"></i><br>Favorited</span>')
+                        $("#fav").css("color", "#FFB300");
+                        is_favorited_during_session = true;
+                    }
+                );
+
+            }
+        });
     });
      historicalBarChart = [
         {
