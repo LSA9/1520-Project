@@ -61,12 +61,8 @@
 					<br>
                     <hr style="width: 100%; float: left;">
                     <br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<select id="sel">
-  <option value="home address">Home Address</option>
-  <option value="favorite 1">Favorite 1</option>
-  <option value="favorite 2">Favorite 2</option>
-  <option value="favorite 3">Favorite 3</option>
-</select> <span style="font-size: 7pt; color: #737373;">Please search and select a pin from the map.</span><br>&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <span style="font-size: 7pt; color: #737373;">Please search and select a pin from the map.</span><br>&nbsp;&nbsp;&nbsp;&nbsp;
                     <div id="location-creation-map">
                         <input id="pac-input" class="controls" type="text" placeholder="Search and Select Marker">
 
@@ -167,23 +163,9 @@
                 marker.setVisible(true);
                 google.maps.event.addListener(marker, 'click', function () {
                     var e=document.getElementById("sel");
-					var option=e.options[e.selectedIndex].value;
-					if(option=="home address"){
-					$("#latlng").val(place.geometry.location);}
-					
-					else if(option=="favorite 1"){
-					alert(document.getElementById("fav1").value);
-					$("#fav1").val(place.geometry.location);
-					alert(document.getElementById("fav1").value);
-					}
-					else if(option=="favorite 2"){
-					$("#fav2").val(place.geometry.location);
-					}
-					else if(option=="favorite 3"){
-					$("#fav3").val(place.geometry.location);
-					}
-					
+					$("#latlng").val(place.geometry.location);
 					$("#update").val("Home Location Updated");
+
                 });
             });
         }
