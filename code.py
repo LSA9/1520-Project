@@ -1,5 +1,6 @@
 import os
 import webapp2
+import datetime
 from google.appengine.ext.webapp import template
 from google.appengine.api import users
 from google.appengine.ext import ndb
@@ -160,6 +161,13 @@ class DetailsPage(webapp2.RequestHandler):
                 l.append(k)
  #       for bv in location[0].businessValues:
         val += location[0].businessValues.value
+        commentvalue = self.request.get("commentText")
+        comments = location.messageList
+        if commentvalue:
+            location.messageList.append(MessagePost(user = user1.nickname(),
+                                                    message = commentvalue,
+                                                    time = datetime.datetime.now()))
+
 
         renderTemplate(self,'static-information-page.html', {
             "location_name": location[0].name,
@@ -170,8 +178,10 @@ class DetailsPage(webapp2.RequestHandler):
             "add": add,
             "log": p.name,
             "businessValue" : val,
-            "locality": l
+            "locality": l,
+            "messageList" : comments
         })
+
 
 
 class ProcessForm(webapp2.RequestHandler):
@@ -380,13 +390,18 @@ class BusinessValue(ndb.Model):
     comment = ndb.StringProperty()
     user = ndb.UserProperty()
 
-
 class Location(ndb.Model):
     latitude = ndb.FloatProperty(required=True)
     longitude = ndb.FloatProperty(required=True)
     locationInfo = ndb.StringProperty(required=True)
     name = ndb.StringProperty(required=True)
     businessValues = ndb.StructuredProperty(BusinessValue,required=True)
+    messageList = ndb.StructuredProperty(MessagePost,required=True,repeated=True)
+
+class MessagePost(ndb.Model):
+    message = ndb.StringProperty(required=True)
+    user = ndb.StringProperty(required=True)
+    time = ndb.DateTimeProperty(required=True)
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),

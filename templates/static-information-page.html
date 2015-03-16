@@ -103,24 +103,30 @@
             <div class="title">Comments<br>
                 <hr>
             </div>
-            <div id="loc-comments">
+             <div id="loc-comments">
                 <ul>
                     <li>
                         <form>
                             <div class="comment" style="background-color: #E0E0E0;">
                                 <div class="comment-user" style="text-align: center; padding-top: 0px;"><span style="font-size: 14pt;">Create Comment</span></div>
-                                <div class="comment-content"  style="padding:0;"><input type="text" style="height: 54px;width:60%;">
-                                    <input type="submit" value="Create" style="height: 60px;"></div>
+                                <div class="comment-content"  style="padding:0;"><input type="text" style="height: 54px;width:60%;"><input type="submit" value="Create" style="height: 60px; width:60px;"></div>
                             </div>
                         </form>
                     </li>
+
+
+
+                    {% for message in comments %}
                     <li>
                         <div class="comment">
                             <div class="comment-user"><i class="icon-user" style="font-size: .8vw"></i>Bob</div>
-                            <div class="comment-info">1/23/15<br>10:40am</div>
-                            <div class="comment-content">It was more crowded than a Denny's&trade; at 2am!</div>
+                            <div class="comment-info">{{message.time.date}}<br>{{message.time.time}}</div>
+                            <div class="comment-content">{{message.message}}</div>
                         </div>
                     </li>
+                    {% end for %}
+
+                    <!--
                     <li>
                         <div class="comment">
                             <div class="comment-user"><i class="icon-user" style="font-size: .8vw"></i>Alice</div>
@@ -136,9 +142,11 @@
                             <div class="comment-content">I am just here so I won't get fined.</div>
                         </div>
                     </li>
+                    -->
                 </ul>
             </div>
         </div>
+
 
 
     </div>
