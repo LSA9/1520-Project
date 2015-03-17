@@ -78,12 +78,12 @@ class AsyncSearch(webapp2.RequestHandler):
                 e = r.field('locationInfo').value.find(')', s)
                 lng = round(float(r.field('locationInfo').value[s+1:e]), 6)
                 markers.append({'lat': str(lat), 'lng': str(lng), 'title': r.field('name').value})
-                res += "<br /><hr style='float: left; padding: 0px; margin: 0px;' /><a class='result' value='" + str(r.field('locationInfo').value) + "' href='/details/" + str(lat) + "/" + str(lng) + "' style='text-decoration: none; width: auto;'><li style='list-style: none; font-size:130%; text-decoration: none; padding: 3px; margin-left: 4px;'>" + r.field('name').value + "</li></a>"
+                res += "<br /><hr style='float: left; padding: 0px; margin: 0px;' /><a class='result' value='" + str(r.field('locationInfo').value) + "' href='/details/" + str(lat) + "/" + str(lng) + "' style='text-decoration: none; width: auto;'><li style='list-style: none; font-size:10pt; text-decoration: none; padding: 3px; margin-left: 4px;'>" + r.field('name').value + "</li></a>"
                 if i > 10:
                     break
                 i+=1
             res += "</ul>"
-            res += '<a style="padding-top: 10px; margin-top:10px; text-decoration: none; font-size:16pt; color:#777777;" href="' + add + '"> + Create New Location </a>'
+            res += '<a style="padding-top: 10px; margin-top:10px; text-decoration: none; font-size:12pt; color:#777777;" href="' + add + '"> + Create New Location </a>'
         data = json.dumps({'html': res, 'markers': markers})
         self.response.out.write(data)
 
