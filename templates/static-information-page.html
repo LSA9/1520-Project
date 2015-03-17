@@ -120,13 +120,13 @@
                             </div>
                     </li>
 
-                            <div class="comment-user"><i class="icon-user" style="font-size: .8vw"></i>Bob</div>
 
 
-                    {% for message in comments %}
+                    {% for message in ca %}
                     <li>
                         <div class="comment">
-                            <div class="comment-info">{{message.time}}</div>
+                            <div class="comment-user"><i class="icon-user" style="font-size: .8vw"></i>{{ message.user }}</div>
+                            <div class="comment-info" style="font-size: .8vw">{{message.date}}<br>{{message.time}}</div>
                             <div class="comment-content">{{message.message}}</div>
                         </div>
                     </li>

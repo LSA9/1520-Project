@@ -8,6 +8,7 @@ from google.appengine.api import search
 from google.appengine.api import mail
 from google.appengine.api import memcache
 import json
+import logging
 import re
 
 def renderTemplate(handler, templatename, templatevalues):
@@ -164,6 +165,15 @@ class DetailsPage(webapp2.RequestHandler):
  #       for bv in location[0].businessValues:
         val += location[0].businessValues.value
         comments = location[0].messageList
+        ca = []
+        for comment in comments:
+            logging.warn(comment.user)
+            timedate = comment.time.strftime('%m/%d/%y')
+            timetime = comment.time.strftime('%H:%M:%S')
+            ca.append({"user":str(comment.user),
+                       "message":comment.message,
+                       "date":timedate,
+                       "time":timetime})
 
 
         favs = ["(40.442606, -79.956686)"]
@@ -181,7 +191,7 @@ class DetailsPage(webapp2.RequestHandler):
             "log": p.name,
             "businessValue": val,
             "locality": l,
-            "messageList": comments,
+            "ca": comments,
             "favorites": p.favorite
         })
 
@@ -195,7 +205,7 @@ class PostComment(webapp2.RequestHandler):
         mail=user.email()
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
-        mp = MessagePost(user=p.name, time="12:27 pm 3/16/2015", message=self.request.get("msg"))
+        mp = MessagePost(user=p.name, time=datetime.datetime.now(), message=self.request.get("msg"))
         location[0].messageList.append(mp)
         location[0].put()
         self.redirect("/details/"+lat+"/"+lng)
@@ -408,7 +418,7 @@ class BusinessValue(ndb.Model):
 class MessagePost(ndb.Model):
     message = ndb.StringProperty(required=True)
     user = ndb.StringProperty(required=True)
-    time = ndb.StringProperty(required=True)
+    time = ndb.DateTimeProperty(required=True)
 
 class Location(ndb.Model):
     latitude = ndb.FloatProperty(required=True)
