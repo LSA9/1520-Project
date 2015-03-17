@@ -101,6 +101,7 @@
             cityCircle = new google.maps.Circle(populationOptions);
             circles.push(cityCircle);
             google.maps.event.addListener(cityCircle, 'click', function () {
+                window.location = "/details/"+{{ f.latitude }}+"/"+ {{ f.longitude }};
             });
         {% endfor %}
     }

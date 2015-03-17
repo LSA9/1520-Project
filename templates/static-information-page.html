@@ -46,7 +46,7 @@
         </div>
         <div id="rt">
             <div id="search">
-                <i class="icon-zoom-in" style="font-size: 16pt;"></i> <input class="srch" id="search-bar" type="search"><br />
+                <i class="icon-zoom-in" style="font-size: 16pt; "></i> <input class="srch" id="search-bar" type="search"><br />
                 <span id="search-result"></span>
             </div>
             <div id="user" title="{{name}}">
@@ -61,9 +61,9 @@
             <div id="loc-info">
 
                 {% if location_latlng not in favorites %}
-                    <span id="fav" style="cursor: pointer; padding-left: 5px; float: left; font-size: 8pt; vertical-align: middle; color: #9e9e9e;"><i id="fav_ic" class="icon-toggle-off" style="font-size: 16pt;"></i><br>Add to Favorites</span>
+                    <span id="fav" style="position: fixed; cursor: pointer; padding-left: 5px; float: left; font-size: 8pt; vertical-align: middle; color: #9e9e9e;"><i id="fav_ic" class="icon-toggle-off" style="font-size: 16pt;"></i><br>Add to Favorites</span>
                 {% else %}
-                    <span id="no_fav" style="padding-left: 5px; float: left; font-size: 8pt;vertical-align: middle;color: #FFB300;"><i class="icon-toggle-on" style="font-size: 16pt; float: left;"></i><br>Favorited</span>
+                    <span id="no_fav" style="position: fixed; padding-left: 5px; float: left; font-size: 8pt;vertical-align: middle;color: #FFB300;"><i class="icon-toggle-on" style="font-size: 16pt; float: left;"></i><br>Favorited</span>
                 {% endif %}
                 <div class="title">{{location_name}}<br>
                     <hr>
@@ -300,8 +300,7 @@
                         'lng': {{ location_lng }}
                     },
                     function(data) {
-                        $("#fav").html('<span id="no_fav" style="padding-left: 5px; float: left; font-size: 8pt;vertical-align: middle;color: #999999;"><i class="icon-toggle-on" style="font-size: 16pt; float: left;"></i><br>Favorited</span>')
-                        $("#fav").css("color", "#FFB300");
+                        $("#fav").html('<span id="no_fav" style="position: fixed; padding-left: 5px; float: left; font-size: 8pt;vertical-align: middle;color: #FFB300;"><i class="icon-toggle-on" style="font-size: 16pt; float: left;"></i><br>Favorited</span>')
                         is_favorited_during_session = true;
                     }
                 );
