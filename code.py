@@ -202,7 +202,7 @@ class DetailsPage(webapp2.RequestHandler):
         for k in locality:
             if lLngBound < k.longitude and k.longitude < hLngBound and k.locationInfo != lat_long:
                 l.append(k)
-        hr =datetime.datetime.now().hour
+        hr =datetime.datetime.now().replace(hour=datetime.datetime.now().hour-4).hour
         val = 0
         grph = {}
         for v in location[0].businessValues:
@@ -293,19 +293,17 @@ class PostComment(webapp2.RequestHandler):
         mail=user.email()
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
-        mp = MessagePost(user=p.name, time=datetime.datetime.now(), message=self.request.get("msg"))
+        mp = MessagePost(parent=location[0].key,user=p.name, time=datetime.datetime.now().replace(hour=datetime.datetime.now().hour-4), message=self.request.get("msg"))
         ml = len(location[0].messageList)
         location[0].messageList.append(mp)
         location[0].put()
         i = 0
-        query = Location.query(Location.locationInfo == lat_long)
+        query = MessagePost.query(ancestor=location[0].key)
         l_ec = query.fetch()
-        while mp not in l_ec[0].messageList:
-            logging.warning(l_ec[0].messageList)
-            query = Location.query(Location.locationInfo == lat_long)
+        while ml <= len(l_ec):
+            query = MessagePost.query(ancestor=location[0].key)
             l_ec = query.fetch()
             if i > 10000:
-                self.redirect(around)
                 break
             i+=1
         self.redirect("/details/"+lat+"/"+lng)
@@ -376,7 +374,7 @@ class CreateLocation(webapp2.RequestHandler):
         if location:
             self.redirect('/details/'+str(lat)+'/'+str(lng))
         else:
-            loc = Location(lastUpdated=datetime.datetime.now(), currentValue=0, latitude=lat, longitude=lng, locationInfo=lat_long, name=self.request.get('location_name'), messageList=[], businessValues=[])
+            loc = Location(lastUpdated=datetime.datetime.now().replace(hour=datetime.datetime.now().hour-4), currentValue=0, latitude=lat, longitude=lng, locationInfo=lat_long, name=self.request.get('location_name'), messageList=[], businessValues=[])
             loc.put()
         my_document = search.Document(
             # Setting the doc_id is optional. If omitted, the search service will create an identifier.
@@ -512,24 +510,21 @@ class UpdateDetails(webapp2.RequestHandler):
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
         logging.warning(int(self.request.get("crowdlvl")))
-        bv = BusinessValue(value=int(self.request.get("crowdlvl")), time=datetime.datetime.now(), user=user)
+        bv = BusinessValue(parent=location[0].key, value=int(self.request.get("crowdlvl")), time=datetime.datetime.now().replace(hour=datetime.datetime.now().hour-4), user=user)
         bl = len(location[0].businessValues)
-        location[0].lastUpdated = datetime.datetime.now()
+        location[0].lastUpdated = datetime.datetime.now().replace(hour=datetime.datetime.now().hour-4)
         location[0].currentValue = int(self.request.get("crowdlvl"))
         location[0].businessValues.append(bv)
         location[0].put()
-        while bl == len(location[0].businessValues):
-            query = Location.query(Location.locationInfo == lat_long)
-            location = query.fetch()
-        i = 0
-        query = Location.query(Location.locationInfo == lat_long)
+        query = BusinessValue.query(ancestor=location[0].key)
         l_ec = query.fetch()
-        while bv not in l_ec[0].businessValues:
-            query = Location.query(Location.locationInfo == lat_long)
+        i = 0
+        while bl <= len(l_ec):
+            query = BusinessValue.query(ancestor=location[0].key)
             l_ec = query.fetch()
-            if i > 100000:
-                self.redirect(around)
-            i+=1
+            if i > 10000:
+                break
+            i += 1
         self.redirect("/details/"+lat+"/"+lng)
 
 
