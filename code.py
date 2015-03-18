@@ -67,7 +67,7 @@ class MainPage(webapp2.RequestHandler):
 
 class AsyncSearch(webapp2.RequestHandler):
     def get(self):
-        index = search.Index(name = "LocationIndex")
+        index = search.Index(name = "LocationsIndex")
 
         results = index.search("name = " + self.request.get('search-value') + " OR address = " + self.request.get('search-value'))
         res = ""
@@ -327,9 +327,16 @@ class ProcessForm(webapp2.RequestHandler):
             p.name=nname
             p.home=nhome
             p.put()
+        favs = []
+        for f in p.favorite:
+            query = Location.query(Location.locationInfo == f)
+            location = query.fetch()
+            if len(location) != 0 and location:
+                favs.append(location[0])
 
         renderTemplate(self,'static-search-page.html', {
             "title_link": '/account',
+            "favorites": favs,
             "around": around,
             "message": log,
             "about": about,
@@ -384,7 +391,7 @@ class CreateLocation(webapp2.RequestHandler):
                 search.TextField(name='address', value= self.request.get('address'))
             ])
         try:
-            index = search.Index(name="LocationIndex")
+            index = search.Index(name="LocationsIndex")
             index.put(my_document)
         except search.Error:
             print("ERROR")
