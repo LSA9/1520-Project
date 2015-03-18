@@ -320,6 +320,7 @@ class ProcessForm(webapp2.RequestHandler):
         p=q.get()
         coord=nhome
         log=nname
+        favs = []
         if not p:
             u=Account(email=user.email(), name=nname, home=nhome, favorite=[])
             u.put()
@@ -327,12 +328,12 @@ class ProcessForm(webapp2.RequestHandler):
             p.name=nname
             p.home=nhome
             p.put()
-        favs = []
-        for f in p.favorite:
-            query = Location.query(Location.locationInfo == f)
-            location = query.fetch()
-            if len(location) != 0 and location:
-                favs.append(location[0])
+
+            for f in p.favorite:
+                query = Location.query(Location.locationInfo == f)
+                location = query.fetch()
+                if len(location) != 0 and location:
+                    favs.append(location[0])
 
         renderTemplate(self,'static-search-page.html', {
             "title_link": '/account',
