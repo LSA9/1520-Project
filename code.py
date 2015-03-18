@@ -10,6 +10,11 @@ from google.appengine.api import memcache
 import json
 import logging
 import re
+import math
+import string
+import operator
+
+os.environ['TZ'] = "US/Eastern"
 
 def renderTemplate(handler, templatename, templatevalues):
     path = os.path.join(os.path.dirname(__file__), 'templates/' + templatename)
@@ -115,7 +120,8 @@ class SearchPage(webapp2.RequestHandler):
         for f in p.favorite:
             query = Location.query(Location.locationInfo == f)
             location = query.fetch()
-            favs.append(location[0])
+            if len(location) != 0 and location:
+                favs.append(location[0])
         log=p.name
         coord=p.home		
         renderTemplate(self,'static-search-page.html', {
@@ -128,6 +134,40 @@ class SearchPage(webapp2.RequestHandler):
             "favorites": favs
         })
 
+
+digs = string.digits + string.letters
+def int2base(x, base):
+    if x < 0:
+      sign = -1
+    elif x == 0:
+      return digs[0]
+    else: sign = 1
+    x *= sign
+    digits = []
+    while x:
+        digits.append(digs[int(x % base)])
+        x /= base
+    if sign < 0:
+        digits.append('-')
+    digits.reverse()
+    res = ''.join(digits)
+    return res[len(res)-2:]
+
+def componentToHex(c):
+    hex = int2base(c,16)
+    if len(hex) == 1:
+        return "0" + hex
+    else:
+        return hex
+
+def rgdToHex(r,g,b):
+    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b)
+
+
+def rgbCalc(b):
+    g = math.floor(((10 - b)*1.0/ 10) * 255)
+    r = math.floor((b / 10.0) * 255)
+    return rgdToHex(r,g,0)
 
 class DetailsPage(webapp2.RequestHandler):
     @ndb.toplevel
@@ -147,7 +187,7 @@ class DetailsPage(webapp2.RequestHandler):
         lat_long ='('+lat+', ' + lng+')';
         query = Location.query(Location.locationInfo == lat_long)
         location = query.fetch()
-        if not location and len(location) == 0:
+        if (not location) or len(location) == 0:
             self.redirect(add)
         val = 0
         hLatBound = float(lat) + .10
@@ -162,8 +202,52 @@ class DetailsPage(webapp2.RequestHandler):
         for k in locality:
             if lLngBound < k.longitude and k.longitude < hLngBound and k.locationInfo != lat_long:
                 l.append(k)
- #       for bv in location[0].businessValues:
-        val += location[0].businessValues.value
+        hr =datetime.datetime.now().hour
+        val = 0
+        grph = {}
+        for v in location[0].businessValues:
+            if str(v.time.hour) in grph:
+                logging.warning(grph)
+                cnt = grph[str(v.time.hour)]["count"]
+                val = grph[str(v.time.hour)]["value"]
+                grph[str(v.time.hour)] = {"value": math.floor((val + v.value)),
+                                          "count": cnt + 1}
+
+            else:
+                grph.update({str(v.time.hour): {
+                             "value": v.value,
+                             "count": 1}
+                })
+        if str(hr) in grph:
+            val = round(grph[str(hr)]["value"]/grph[str(hr)]["count"],2)
+        else:
+            val = 0
+        location[0].currentValue = int(math.floor(val))
+
+        disp_graph = []
+        for r in range(0,24,1):
+            ampm = ""
+            if(r >= 12):
+                ampm = " pm"
+                if r == 12:
+                    s = str(12)
+                else:
+                    s = str(r-12)
+            else:
+                ampm = " am"
+                if r == 0:
+                    s = str(12)
+                else:
+                    s = str(r)
+
+            if str(r) in grph:
+                disp_graph.append({"label": s+ampm,
+                                   "value": grph[str(r)]["value"]/grph[str(r)]["count"],
+                                   "color": rgbCalc(grph[str(r)]["value"]/grph[str(r)]["count"])})
+            else:
+                disp_graph.append({"label": s+ampm,
+                               "value": 0,
+                               "color": rgbCalc(0)})
         comments = location[0].messageList
         ca = []
         for comment in comments:
@@ -175,8 +259,9 @@ class DetailsPage(webapp2.RequestHandler):
                        "date":timedate,
                        "time":timetime})
 
+        lu = location[0].lastUpdated.strftime('%m/%d/%y at %H:%M:%S')
 
-        favs = ["(40.442606, -79.956686)"]
+        favs = []
         if p.favorite:
             favs = p.favorite
         renderTemplate(self,'static-information-page.html', {
@@ -189,10 +274,13 @@ class DetailsPage(webapp2.RequestHandler):
             "about": about,
             "add": add,
             "log": p.name,
+            "recentValue": location[0].currentValue,
             "businessValue": val,
+            "last_updated": lu,
             "locality": l,
             "ca": comments,
-            "favorites": p.favorite
+            "favorites": p.favorite,
+            "graph": disp_graph
         })
 
 
@@ -206,8 +294,20 @@ class PostComment(webapp2.RequestHandler):
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
         mp = MessagePost(user=p.name, time=datetime.datetime.now(), message=self.request.get("msg"))
+        ml = len(location[0].messageList)
         location[0].messageList.append(mp)
         location[0].put()
+        i = 0
+        query = Location.query(Location.locationInfo == lat_long)
+        l_ec = query.fetch()
+        while mp not in l_ec[0].messageList:
+            logging.warning(l_ec[0].messageList)
+            query = Location.query(Location.locationInfo == lat_long)
+            l_ec = query.fetch()
+            if i > 10000:
+                self.redirect(around)
+                break
+            i+=1
         self.redirect("/details/"+lat+"/"+lng)
 
 class ProcessForm(webapp2.RequestHandler):
@@ -276,9 +376,7 @@ class CreateLocation(webapp2.RequestHandler):
         if location:
             self.redirect('/details/'+str(lat)+'/'+str(lng))
         else:
-            bv = BusinessValue(value=5)
-
-            loc = Location(latitude=lat, longitude=lng, locationInfo=lat_long, name=self.request.get('location_name'), messageList=[], businessValues=bv)
+            loc = Location(lastUpdated=datetime.datetime.now(), currentValue=0, latitude=lat, longitude=lng, locationInfo=lat_long, name=self.request.get('location_name'), messageList=[], businessValues=[])
             loc.put()
         my_document = search.Document(
             # Setting the doc_id is optional. If omitted, the search service will create an identifier.
@@ -331,13 +429,13 @@ class UpdateAccount(webapp2.RequestHandler):
         renderTemplate(self,'static-account-registration-page.html',{
             "account": '/account',
             "name": nickname,
-            "nickname":nickname,
+            "nickname": nickname,
             "local": local,
             "logout": logout,
             "about": about,
             "around": around,
             "add": add,
-            "ll":latlong,
+            "ll": latlong,
         })
 
 class AboutUs(webapp2.RequestHandler):
@@ -385,7 +483,7 @@ class AsyncFavoriteAdd(webapp2.RequestHandler):
 
 
 
-class ContactUs(webapp2.RedirectHandler):
+class ContactUs(webapp2.RequestHandler):
     def get(self):
         self.redirect('/about')
 
@@ -403,17 +501,49 @@ class ContactUs(webapp2.RedirectHandler):
         self.redirect('/about')
 
 
+class UpdateDetails(webapp2.RequestHandler):
+    def post(self, lat, lng):
+        lat_long ='('+lat+', ' + lng+')'
+        logging.warn(lat_long)
+        query = Location.query(Location.locationInfo == lat_long)
+        location = query.fetch()
+        user=users.get_current_user()
+        mail=user.email()
+        q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
+        p=q.get()
+        logging.warning(int(self.request.get("crowdlvl")))
+        bv = BusinessValue(value=int(self.request.get("crowdlvl")), time=datetime.datetime.now(), user=user)
+        bl = len(location[0].businessValues)
+        location[0].lastUpdated = datetime.datetime.now()
+        location[0].currentValue = int(self.request.get("crowdlvl"))
+        location[0].businessValues.append(bv)
+        location[0].put()
+        while bl == len(location[0].businessValues):
+            query = Location.query(Location.locationInfo == lat_long)
+            location = query.fetch()
+        i = 0
+        query = Location.query(Location.locationInfo == lat_long)
+        l_ec = query.fetch()
+        while bv not in l_ec[0].businessValues:
+            query = Location.query(Location.locationInfo == lat_long)
+            l_ec = query.fetch()
+            if i > 100000:
+                self.redirect(around)
+            i+=1
+        self.redirect("/details/"+lat+"/"+lng)
+
+
 class Account(ndb.Model):
     name = ndb.StringProperty(required=True)
     email = ndb.StringProperty(required=True)
     home = ndb.StringProperty(required=True)
-    favorite=ndb.StringProperty(repeated=True)	
+    favorite = ndb.StringProperty(repeated=True)
 
 
 class BusinessValue(ndb.Model):
     value = ndb.IntegerProperty(required=True)
-    comment = ndb.StringProperty()
     user = ndb.UserProperty()
+    time = ndb.DateTimeProperty(required=True)
 
 class MessagePost(ndb.Model):
     message = ndb.StringProperty(required=True)
@@ -424,8 +554,10 @@ class Location(ndb.Model):
     latitude = ndb.FloatProperty(required=True)
     longitude = ndb.FloatProperty(required=True)
     locationInfo = ndb.StringProperty(required=True)
+    lastUpdated = ndb.DateTimeProperty(required=True)
     name = ndb.StringProperty(required=True)
-    businessValues = ndb.StructuredProperty(BusinessValue,required=True)
+    currentValue = ndb.IntegerProperty(required=True)
+    businessValues = ndb.StructuredProperty(BusinessValue, repeated=True)
     messageList = ndb.StructuredProperty(MessagePost, repeated=True)
 
 
@@ -433,6 +565,7 @@ class Location(ndb.Model):
 app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/comment/details/([^/]+)/([^/]+)', PostComment),
+    ('/post/details/([^/]+)/([^/]+)', UpdateDetails),
     ('/details/([^/]+)/([^/]+)', DetailsPage),
     ('/search/async', AsyncSearch),
     ('/search', SearchPage),
