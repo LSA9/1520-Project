@@ -128,8 +128,8 @@
     }
     google.maps.event.addDomListener(window, 'load', initialize);
     function rgbCalc(b){
-        var g = Math.floor(((10 - b)*1.0/ 10) * 255);
-        var r = Math.floor((b / 10.0) * 255);
+        var g = Math.floor(((5 - b)*1.0/ 5) * 255);
+        var r = Math.floor((b / 5.0) * 255);
         return rgbToHex(r,g,0);
     }
     function componentToHex(c) {

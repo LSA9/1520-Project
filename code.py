@@ -1,6 +1,7 @@
 import os
 import webapp2
 import datetime
+import time
 from google.appengine.ext.webapp import template
 from google.appengine.api import users
 from google.appengine.ext import ndb
@@ -13,6 +14,7 @@ import re
 import math
 import string
 import operator
+
 
 os.environ['TZ'] = "US/Eastern"
 
@@ -165,8 +167,8 @@ def rgdToHex(r,g,b):
 
 
 def rgbCalc(b):
-    g = math.floor(((10 - b)*1.0/ 10) * 255)
-    r = math.floor((b / 10.0) * 255)
+    g = math.floor(((5 - b)*1.0/ 5) * 255)
+    r = math.floor((b / 5.0) * 255)
     return rgdToHex(r,g,0)
 
 class DetailsPage(webapp2.RequestHandler):
@@ -190,10 +192,10 @@ class DetailsPage(webapp2.RequestHandler):
         if (not location) or len(location) == 0:
             self.redirect(add)
         val = 0
-        hLatBound = float(lat) + .10
-        lLatBound = float(lat) - .10
-        hLngBound = float(lng) + .10
-        lLngBound = float(lng) - .10
+        hLatBound = float(lat) + .050
+        lLatBound = float(lat) - .050
+        hLngBound = float(lng) + .050
+        lLngBound = float(lng) - .050
         qry1 = Location.query()
         qry2 = qry1.filter(Location.latitude > lLatBound)
         qry3 = qry2.filter(Location.latitude < hLatBound)
@@ -202,27 +204,8 @@ class DetailsPage(webapp2.RequestHandler):
         for k in locality:
             if lLngBound < k.longitude and k.longitude < hLngBound and k.locationInfo != lat_long:
                 l.append(k)
-        hr =datetime.datetime.now().replace(hour=datetime.datetime.now().hour-4).hour
-        val = 0
-        grph = {}
-        for v in location[0].businessValues:
-            if str(v.time.hour) in grph:
-                logging.warning(grph)
-                cnt = grph[str(v.time.hour)]["count"]
-                val = grph[str(v.time.hour)]["value"]
-                grph[str(v.time.hour)] = {"value": math.floor((val + v.value)),
-                                          "count": cnt + 1}
-
-            else:
-                grph.update({str(v.time.hour): {
-                             "value": v.value,
-                             "count": 1}
-                })
-        if str(hr) in grph:
-            val = round(grph[str(hr)]["value"]/grph[str(hr)]["count"],2)
-        else:
-            val = 0
-        location[0].currentValue = int(math.floor(val))
+        hr = now_eastern(datetime.datetime.now()).hour
+        val = round(location[0].hour_averages[hr].value,2)
 
         disp_graph = []
         for r in range(0,24,1):
@@ -240,31 +223,35 @@ class DetailsPage(webapp2.RequestHandler):
                 else:
                     s = str(r)
 
-            if str(r) in grph:
-                disp_graph.append({"label": s+ampm,
-                                   "value": grph[str(r)]["value"]/grph[str(r)]["count"],
-                                   "color": rgbCalc(grph[str(r)]["value"]/grph[str(r)]["count"])})
-            else:
-                disp_graph.append({"label": s+ampm,
-                               "value": 0,
-                               "color": rgbCalc(0)})
+
+            disp_graph.append({"label": s+ampm,
+                                   "value": location[0].hour_averages[r % 24].value,
+                                   "color": rgbCalc(location[0].hour_averages[r % 24].value)})
+
         comments = location[0].messageList
         ca = []
+        graph_color_val = 0
+        if (hr - now_eastern(location[0].lastUpdated).hour) < 1 and (hr - now_eastern(location[0].lastUpdated).hour) >= 0:
+            graph_color_val = location[0].currentValue
+        else:
+            graph_color_val = val
         for comment in comments:
-            logging.warn(comment.user)
-            timedate = comment.time.strftime('%m/%d/%y')
-            timetime = comment.time.strftime('%H:%M:%S')
+            ct = now_eastern(comment.time)
+            timedate = ct.strftime('%m/%d/%y')
+            timetime = ct.strftime('%I:%M %p')
             ca.append({"user":str(comment.user),
                        "message":comment.message,
                        "date":timedate,
                        "time":timetime})
+        ca.reverse()
 
-        lu = location[0].lastUpdated.strftime('%m/%d/%y at %H:%M:%S')
+        lu = now_eastern(location[0].lastUpdated).strftime('%m/%d/%y at %I:%M:%S %p')
 
         favs = []
         if p.favorite:
             favs = p.favorite
         renderTemplate(self,'static-information-page.html', {
+            "graph_val_col": graph_color_val,
             "location_name": location[0].name,
             "location_latlng": lat_long,
             "location_lat": lat,
@@ -278,7 +265,7 @@ class DetailsPage(webapp2.RequestHandler):
             "businessValue": val,
             "last_updated": lu,
             "locality": l,
-            "ca": comments,
+            "ca": ca,
             "favorites": p.favorite,
             "graph": disp_graph
         })
@@ -293,17 +280,17 @@ class PostComment(webapp2.RequestHandler):
         mail=user.email()
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
-        mp = MessagePost(parent=location[0].key,user=p.name, time=datetime.datetime.now().replace(hour=datetime.datetime.now().hour-4), message=self.request.get("msg"))
+        mp = MessagePost(parent=location[0].key,user=p.name, time=datetime.datetime.now(), message=self.request.get("msg"))
         ml = len(location[0].messageList)
         location[0].messageList.append(mp)
         location[0].put()
         i = 0
         query = MessagePost.query(ancestor=location[0].key)
         l_ec = query.fetch()
-        while ml <= len(l_ec):
+        while ml < len(l_ec):
             query = MessagePost.query(ancestor=location[0].key)
             l_ec = query.fetch()
-            if i > 10000:
+            if i > 100:
                 break
             i+=1
         self.redirect("/details/"+lat+"/"+lng)
@@ -316,7 +303,7 @@ class ProcessForm(webapp2.RequestHandler):
         global around,about,add
         nname = self.request.get('username')
         nhome = self.request.get('lat_long')
-        q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
+        q=ndb.gql("SELECT * FROM Account WHERE email = :1", mail)
         p=q.get()
         coord=nhome
         log=nname
@@ -382,7 +369,13 @@ class CreateLocation(webapp2.RequestHandler):
         if location:
             self.redirect('/details/'+str(lat)+'/'+str(lng))
         else:
-            loc = Location(lastUpdated=datetime.datetime.now().replace(hour=datetime.datetime.now().hour-4), currentValue=0, latitude=lat, longitude=lng, locationInfo=lat_long, name=self.request.get('location_name'), messageList=[], businessValues=[])
+            ha = []
+            loc = Location(lastUpdated=datetime.datetime.now(), currentValue=0, latitude=lat, longitude=lng,
+                           locationInfo=lat_long, name=self.request.get('location_name'), messageList=[],
+                           businessValues=[], hour_averages=[])
+            for i in range(0,24):
+                ha.append(HourAnalytic(value=0.0, hour=i, count=0, parent=loc.key))
+            loc.hour_averages = ha
             loc.put()
         my_document = search.Document(
             # Setting the doc_id is optional. If omitted, the search service will create an identifier.
@@ -403,7 +396,7 @@ class CreateLocation(webapp2.RequestHandler):
         while not location:
             query = Location.query(Location.locationInfo == lat_long)
             location = query.fetch()
-            if i > 100000:
+            if i > 10:
                 self.redirect(around)
             i+=1
 
@@ -414,7 +407,7 @@ class UpdateAccount(webapp2.RequestHandler):
     def get(self):
         global about
         global around
-        global add		
+        global add
         user=users.get_current_user()
         mail=user.email()
         if not user:
@@ -510,27 +503,32 @@ class ContactUs(webapp2.RequestHandler):
 class UpdateDetails(webapp2.RequestHandler):
     def post(self, lat, lng):
         lat_long ='('+lat+', ' + lng+')'
-        logging.warn(lat_long)
         query = Location.query(Location.locationInfo == lat_long)
         location = query.fetch()
         user=users.get_current_user()
         mail=user.email()
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
-        logging.warning(int(self.request.get("crowdlvl")))
-        bv = BusinessValue(parent=location[0].key, value=int(self.request.get("crowdlvl")), time=datetime.datetime.now().replace(hour=datetime.datetime.now().hour-4), user=user)
+        nw = datetime.datetime.now()
+        bv = BusinessValue(parent=location[0].key, value=int(self.request.get("crowdlvl")), time=nw, user=user)
         bl = len(location[0].businessValues)
-        location[0].lastUpdated = datetime.datetime.now().replace(hour=datetime.datetime.now().hour-4)
+        location[0].lastUpdated = datetime.datetime.now()
         location[0].currentValue = int(self.request.get("crowdlvl"))
         location[0].businessValues.append(bv)
+        logging.warning(str(location[0].hour_averages[int(now_eastern(nw).hour % 24)].value))
+        location[0].hour_averages[int(now_eastern(nw).hour % 24)].value = (location[0].hour_averages[int(now_eastern(nw).hour % 24)].count * location[0].hour_averages[int(now_eastern(nw).hour % 24)].value +
+                                                              int(self.request.get("crowdlvl")))/(location[0].hour_averages[int(now_eastern(nw).hour % 24)].count+1)
+        location[0].hour_averages[int(now_eastern(nw).hour % 24)].count += 1
+        logging.warning(str(location[0].hour_averages[int(now_eastern(nw).hour % 24)].count) + " " + str(location[0].hour_averages[int(now_eastern(nw).hour % 24)].value))
         location[0].put()
         query = BusinessValue.query(ancestor=location[0].key)
         l_ec = query.fetch()
         i = 0
-        while bl <= len(l_ec):
+
+        while bl < len(l_ec):
             query = BusinessValue.query(ancestor=location[0].key)
             l_ec = query.fetch()
-            if i > 10000:
+            if i > 100:
                 break
             i += 1
         self.redirect("/details/"+lat+"/"+lng)
@@ -553,17 +551,49 @@ class MessagePost(ndb.Model):
     user = ndb.StringProperty(required=True)
     time = ndb.DateTimeProperty(required=True)
 
+class HourAnalytic(ndb.Model):
+    hour = ndb.IntegerProperty(required=True)
+    count = ndb.IntegerProperty(required=True)
+    value = ndb.FloatProperty(required=True)
+
 class Location(ndb.Model):
     latitude = ndb.FloatProperty(required=True)
     longitude = ndb.FloatProperty(required=True)
     locationInfo = ndb.StringProperty(required=True)
+    hour_averages = ndb.StructuredProperty(HourAnalytic, repeated=True)
     lastUpdated = ndb.DateTimeProperty(required=True)
     name = ndb.StringProperty(required=True)
     currentValue = ndb.IntegerProperty(required=True)
     businessValues = ndb.StructuredProperty(BusinessValue, repeated=True)
     messageList = ndb.StructuredProperty(MessagePost, repeated=True)
 
+def now_eastern(tm):
+    return datetime.datetime.fromtimestamp(time.mktime(tm.timetuple()), Eastern_tzinfo())
 
+class Eastern_tzinfo(datetime.tzinfo):
+    """Implementation of the Es timezone."""
+    def utcoffset(self, dt):
+        return datetime.timedelta(hours=-5) + self.dst(dt)
+
+    def _FirstSunday(self, dt):
+        """First Sunday on or after dt."""
+        return dt + datetime.timedelta(days=(6-dt.weekday()))
+
+    def dst(self, dt):
+        # 2 am on the second Sunday in March
+        dst_start = self._FirstSunday(datetime.datetime(dt.year, 3, 8, 2))
+        # 1 am on the first Sunday in November
+        dst_end = self._FirstSunday(datetime.datetime(dt.year, 11, 1, 1))
+
+        if dst_start <= dt.replace(tzinfo=None) < dst_end:
+            return datetime.timedelta(hours=1)
+        else:
+            return datetime.timedelta(hours=0)
+    def tzname(self, dt):
+        if self.dst(dt) == datetime.timedelta(hours=0):
+            return "PST"
+        else:
+            return "PDT"
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),

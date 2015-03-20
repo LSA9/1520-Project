@@ -68,22 +68,52 @@
                 <div class="title">{{location_name}}<br>
                     <hr>
                 </div>
+                    <table style="align-content: center; text-align: center; width: 100%; font-size: 14pt; color: #444444;">
+                        <tr>
+                            <td style="border-right: solid #999999 1px;border-bottom: solid #999999 1px; width: 50%; padding: 8px;">
+                                <strong>Most Recent Crowd Level</strong><div id="crd-lvl" style="display: inline;font-weight: bolder;"><br><span id="recent" style="padding-left:0em; font-size: 26pt;">{{ recentValue }}</span> </div>
+                            </td>
+                            <td style="border-left: solid #999999 1px;border-bottom: solid #999999 1px;width: 50%; padding: 8px;">
+                                <strong>Typical Crowd Level at this time</strong><div id="crd-lvl-typical" style="display: inline;font-weight: bolder;"><br><span id="typical" style="padding-left:0em;font-size: 26pt;">{{ businessValue }}</span></div>
+                            </td>
+                        </tr>
+                        <tr style="border-top: solid #999999 1px;">
+                            <td colspan="2" style="padding: 8px;">
+                                <strong>Last Updated</strong><br><span style="padding-left:0em;font-size: 14pt;">{{ last_updated }}</span>
+                            </td>
+                        </tr>
+                        <tr style="border-top: solid #999999 1px">
+                            <td colspan="2" style="padding: 8px;">
+                                <button class="my_popup_open" style="margin-left: 0px; width: 150px; height: 50px;" onclick="setlatlong()">Update</button>
+                                <div id="my_popup" style="display: none;">
+                                    <div class="modal">
+                                        <form method="post" action="/post/details/{{ location_lat }}/{{ location_lng }}"> <!--Leonard Aronson 2/12/15: added action-->
+                                            How crowded is it?
+                                            <input name="crowdlvl" title="( 0 being as crowded as Taiwan Cafe and 10 being as crowded as a subway car in Japan during rush hour )" id="crowd-slide" type="range" width="100px" step="1" max="5" min="0" value="2"/>
+                                            <span id="range" style="margin-left: 10px; font-size: 18pt; font-weight: bolder; position: fixed;">2</span><br>
+                                            <input type="submit" value="Submit">
+                                        </form>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <!--<ul style="font-size: 14pt; list-style: circle;">
+                        <li><strong>Most Recent Crowd Level:</strong>
 
-                    <ul>
-                        <li><strong>Crowd Level: </strong>
-
-                            <div id="crd-lvl" style="display: inline;font-weight: bolder;">{{ recentValue }}</div>
+                            <div id="crd-lvl" style="display: inline;font-weight: bolder;"><br><span style="padding-left:4em">{{ recentValue }}</span> </div>
 
                         </li>
-                        <li><strong>Last Updated: </strong>{{ last_updated }}</li>
-                        <li><strong>Typical Crowd Level: </strong>
-                            <div id="crd-lvl-typical" style="display: inline;font-weight: bolder;">{{ businessValue }}</div>
+                        <li><strong>Last Updated:</strong><br><span style="padding-left:4em">{{ last_updated }}</span> </li>
+                        <br>
+                        <li><strong>Typical Crowd Level at this time:</strong>
+                            <div id="crd-lvl-typical" style="display: inline;font-weight: bolder;"><br><span style="padding-left:4em">{{ businessValue }}</span></div>
                         </li>
-                        <!--Added by Leonard Aronson 2-8-2015-->
+                        <!--Added by Leonard Aronson 2-8-2015--><!--
                         <button class="my_popup_open" style="margin-left: 20px" onclick="setlatlong()">Update</button>
                         <div id="my_popup" style="display: none;">
                             <div class="modal">
-                                <form method="post" action="/post/details/{{ location_lat }}/{{ location_lng }}"> <!--Leonard Aronson 2/12/15: added action-->
+                                <form method="post" action="/post/details/{{ location_lat }}/{{ location_lng }}"> <!--Leonard Aronson 2/12/15: added action--><!--
                                     How crowded is it?
                                     <input name="crowdlvl" title="( 0 being as crowded as Taiwan Cafe and 10 being as crowded as a subway car in Japan during rush hour )" id="crowd-slide" type="range" width="100px" step="1" max="10" min="0" value="5"/>
                                     <span id="range" style="margin-left: 10px; font-size: 18pt; font-weight: bolder; position: fixed;">5</span><br>
@@ -91,7 +121,7 @@
                                 </form>
                             </div>
                         </div>
-                    </ul>
+                    </ul>-->
                  <div id="chart1">
                                 <svg></svg>
                  </div>
@@ -185,7 +215,7 @@
             strokeColor: '#607D8B',
             strokeOpacity: 1,
             strokeWeight: 5,
-            fillColor: rgbCalc({{ businessValue }}),
+            fillColor: rgbCalc({{ graph_val_col }}),
             fillOpacity: 0.5,
             map: map,
             center:  new google.maps.LatLng{{ location_latlng }},
@@ -232,6 +262,8 @@
         document.getElementById("range").innerHTML = newValue;
     }
     $(document).ready(function () {
+        $("#recent").css("color", rgbCalc({{ recentValue }}));
+        $("#typical").css("color", rgbCalc({{ businessValue }}));
         function screenWidthResolver(){
             if($(window).width() <= 900){
                 $("#top-left").css("width", $(window).width()-20);
@@ -276,8 +308,8 @@
             searchVal();
         });
         $("#crowd-slide").on('input', function () {
-            var g = Math.floor(((10 - $("#crowd-slide").val()) / 10) * 255);
-            var r = Math.floor((($("#crowd-slide").val()) / 10) * 255);
+            var g = Math.floor(((5 - $("#crowd-slide").val()) / 5.0) * 255);
+            var r = Math.floor((($("#crowd-slide").val()) / 5) * 255);
             $("#range").html('<span style="color: rgb(' + r + ',' + g + ',0);">' + $("#crowd-slide").val() + '</span>')
         });
         // Initialize the plugin
@@ -321,8 +353,8 @@
         }
     ];
     function rgbCalc(b){
-        var g = Math.floor(((10 - b)*1.0/ 10) * 255);
-        var r = Math.floor((b / 10.0) * 255);
+        var g = Math.floor(((5 - b)*1.0/ 5) * 255);
+        var r = Math.floor((b / 5.0) * 255);
         return rgbToHex(r,g,0);
     }
     function componentToHex(c) {
@@ -341,7 +373,7 @@
             .tooltips(false)
             .showValues(false)
             .duration(500)
-            .forceY([0,10])
+            .forceY([0,5])
             ;
         chart.xAxis.rotateLabels(-45);
         d3.select('#chart1 svg')

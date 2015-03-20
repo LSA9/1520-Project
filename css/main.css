@@ -29,6 +29,7 @@ button,input[type="submit"] {
 
 }
 
+
 button:hover,input[type="submit"]:hover {
     border: none;
     background: #607D8B;
@@ -36,6 +37,7 @@ button:hover,input[type="submit"]:hover {
     box-shadow: 0 0px 0px rgba(0, 0, 0, 0.26);
 
 }
+
 #menu-bar {
     height: 65px;
     width: 100%;
