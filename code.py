@@ -235,6 +235,9 @@ class DetailsPage(webapp2.RequestHandler):
             graph_color_val = location[0].currentValue
         else:
             graph_color_val = val
+
+        comments.reverse()
+        i = 0
         for comment in comments:
             ct = now_eastern(comment.time)
             timedate = ct.strftime('%m/%d/%y')
@@ -243,7 +246,10 @@ class DetailsPage(webapp2.RequestHandler):
                        "message":comment.message,
                        "date":timedate,
                        "time":timetime})
-        ca.reverse()
+            i+=1
+            if i > 10:
+                break
+
 
         lu = now_eastern(location[0].lastUpdated).strftime('%m/%d/%y at %I:%M:%S %p')
 
