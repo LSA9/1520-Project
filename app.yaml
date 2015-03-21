@@ -5,6 +5,9 @@ version: 1
 threadsafe: no
 
 handlers:
+- url: /favicon\.ico
+  static_files: img/favicon.ico
+  upload: img/favicon\.ico
 - url: /static
   static_dir: static
 - url: /css
@@ -14,6 +17,7 @@ handlers:
 - url: /img
   static_dir: img
 - url: /js
-  static_dir: js  
+  static_dir: js
 - url: /.*
   script: code.app
+
