@@ -32,15 +32,28 @@
                     </div>
                 </div>
             </div>
+            <style>
+                #lnk {
+                    background-image: url('/img/Red-signin-Long-base-44dp.png');
+                    width: 100%; height: 100px;
+                }
+                #lnk:hover {
+                    background-image: url('/img/Red-signin-Long-hover-44dp.png');
+                    width: 100%; height: 100px;
+                }
+            </style>
         </header>
         <content>
             <div id="content">
                 <div id="center-xy">
                     <div id="login-field">
-                        <div class="title">{{title}}<br><hr></div>          
+                        <div class="title">{{title}}<br><hr></div>
 							<br>
-							<br>
-							<h1><a href={{link}}>{{message}}</a></h1>
+                            <a href="{{link}}" style="width: 100%; height: 80px;" >
+							<h1 id="lnk">
+                            </h1>
+                            </a>
+
 						<!--<form>
                             Username or Email<br><input type="text" name="username" /><br><br>
                             Password<br><input type="password" name="pswd"><br><br>
@@ -55,11 +68,23 @@
                 Created be Richard Kotermanski, Nate Dorman, Len Aronson, and Danny Arnold
             </div>-->
         </footer>
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src="../js/vendor/jquery-1.10.2.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
+        <script src="../js/vendor/jquery.validate.min.js"></script>
+        <script src="../js/vendor/additional-methods.min.js"></script>
         <script src="../js/plugins.js"></script>
         <script src="../js/main.js"></script>
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>
 
+        <script>
+            $(document).ready(function () {
+                $("#lnk").on('mouseenter',function(){
 
+                });
+                $("#lnk").on('mouseleave',function(){
+                    $("#lnk").innerHTML = '<img src="/img/Red-signin-Long-base-44dp.png">'
+                });
+            });
+        </script>
     </body>
 </html>

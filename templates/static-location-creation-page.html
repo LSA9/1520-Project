@@ -71,12 +71,11 @@
                      <br><br>
                     <input style="display: none;" type="text" value="" name="lat_long" id="latlng">
 					&nbsp;&nbsp;&nbsp;&nbsp;Location address:<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<textarea style="background-color: #9e9e9e; border: solid #737373 thin; height: 100px;" type="" value="" name="address" id="address" ></textarea>
-                    <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<textarea style="background-color: #9e9e9e; border: solid #737373 thin; height: 100px; width: 300px;" type="" value="" name="address" id="address" ></textarea>
                     <br>
                     &nbsp;&nbsp;&nbsp;&nbsp;Location Name:<br>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="location_name"
-                                                                                             id="location-name-box" style="background-color: #9e9e9e; border: solid #737373 thin;" />
-                    &nbsp; <input type="submit" value="Create Location">
+                                                                                             id="location-name-box" style="background-color: #9e9e9e; border: solid #737373 thin;width: 305px;" />
+                    <br><br>&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" value="Create Location">
 
 
 
@@ -118,10 +117,15 @@
             },
             messages: {
                 address: {
-                    required: " <br>&nbsp;&nbsp;&nbsp;Please select a pin from the map for the location"
+                    required:
+                    "<span style='float: left; top: 100px; left: 0px; position: absolute; background-color: #EF5350; padding: 5px; padding-right: 10px;'>" +
+                    "<i class='icon-attention'></i>Please select a pin from the map for the location" +
+                    "</span>"
                 },
                 location_name: {
-                    required: " <br>&nbsp;&nbsp;&nbsp;Please give us something to call this place"
+                    required:
+                    "<span style='float: left; top: 100px; left: 0px; position: absolute; background-color: #EF5350; padding: 5px; padding-right: 10px;'>" +
+                    "</span>"
                 }
             },
             submitHandler: function (form) {
