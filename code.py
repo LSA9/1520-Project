@@ -69,23 +69,28 @@ class MainPage(webapp2.RequestHandler):
 
 class AsyncSearch(webapp2.RequestHandler):
     def get(self):
-        index = search.Index(name = "LocationsIndex")
+        index = search.Index(name = "LocationIndexes")
 
         results = index.search("name = " + self.request.get('search-value') + " OR address = " + self.request.get('search-value'))
         res = ""
         markers=[]
+        nw = now_eastern(datetime.datetime.now()).hour
         if results:
             i = 0
             res += "<ul style='text-align: left; text-decoration: none; padding-top: 0; margin-top: 0;'>"
             for r in results:
                 lat = ""
+
                 s = r.field('locationInfo').value.find('(')
                 e = r.field('locationInfo').value.find(',', s)
                 lat = round(float(r.field('locationInfo').value[s+1:e]), 6)
                 s = r.field('locationInfo').value.find(',')
                 e = r.field('locationInfo').value.find(')', s)
                 lng = round(float(r.field('locationInfo').value[s+1:e]), 6)
-                markers.append({'lat': str(lat), 'lng': str(lng), 'title': r.field('name').value})
+                lat_long ='('+str(lat)+', ' + str(lng) +')'
+                query = Location.query(Location.locationInfo == lat_long)
+                location = query.fetch()
+                markers.append({'lat': str(lat), 'lng': str(lng), 'title': r.field('name').value, 'color' : str(rgbCalc(location[0].currentValue))})
                 res += "<br /><hr style='float: left; padding: 0px; margin: 0px;' /><a class='result' value='" + str(r.field('locationInfo').value) + "' href='/details/" + str(lat) + "/" + str(lng) + "' style='text-decoration: none; width: auto;'><li style='list-style: none; font-size:10pt; text-decoration: none; padding: 3px; margin-left: 4px;'>" + r.field('name').value + "</li></a>"
                 if i > 10:
                     break
@@ -191,90 +196,90 @@ class DetailsPage(webapp2.RequestHandler):
         location = query.fetch()
         if (not location) or len(location) == 0:
             self.redirect(add)
-        val = 0
-        hLatBound = float(lat) + .050
-        lLatBound = float(lat) - .050
-        hLngBound = float(lng) + .050
-        lLngBound = float(lng) - .050
-        qry1 = Location.query()
-        qry2 = qry1.filter(Location.latitude > lLatBound)
-        qry3 = qry2.filter(Location.latitude < hLatBound)
-        locality = qry3.fetch()
-        l = []
-        for k in locality:
-            if lLngBound < k.longitude and k.longitude < hLngBound and k.locationInfo != lat_long:
-                l.append(k)
-        hr = now_eastern(datetime.datetime.now()).hour
-        val = round(location[0].hour_averages[hr].value,2)
-
-        disp_graph = []
-        for r in range(0,24,1):
-            ampm = ""
-            if(r >= 12):
-                ampm = " pm"
-                if r == 12:
-                    s = str(12)
-                else:
-                    s = str(r-12)
-            else:
-                ampm = " am"
-                if r == 0:
-                    s = str(12)
-                else:
-                    s = str(r)
-
-
-            disp_graph.append({"label": s+ampm,
-                                   "value": location[0].hour_averages[r % 24].value,
-                                   "color": rgbCalc(location[0].hour_averages[r % 24].value)})
-
-        comments = location[0].messageList
-        ca = []
-        graph_color_val = 0
-        if (hr - now_eastern(location[0].lastUpdated).hour) < 1 and (hr - now_eastern(location[0].lastUpdated).hour) >= 0:
-            graph_color_val = location[0].currentValue
         else:
-            graph_color_val = val
+            val = 0
+            hLatBound = float(lat) + .050
+            lLatBound = float(lat) - .050
+            hLngBound = float(lng) + .050
+            lLngBound = float(lng) - .050
+            qry1 = Location.query()
+            qry2 = qry1.filter(Location.latitude > lLatBound)
+            qry3 = qry2.filter(Location.latitude < hLatBound)
+            locality = qry3.fetch()
+            l = []
+            for k in locality:
+                if lLngBound < k.longitude and k.longitude < hLngBound and k.locationInfo != lat_long:
+                    l.append(k)
+            hr = now_eastern(datetime.datetime.now()).hour
+            val = round(location[0].hour_averages[hr].value,2)
+            disp_graph = []
+            for r in range(0,24,1):
+                ampm = ""
+                if(r >= 12):
+                    ampm = " pm"
+                    if r == 12:
+                        s = str(12)
+                    else:
+                        s = str(r-12)
+                else:
+                    ampm = " am"
+                    if r == 0:
+                        s = str(12)
+                    else:
+                        s = str(r)
 
-        comments.reverse()
-        i = 0
-        for comment in comments:
-            ct = now_eastern(comment.time)
-            timedate = ct.strftime('%m/%d/%y')
-            timetime = ct.strftime('%I:%M %p')
-            ca.append({"user":str(comment.user),
-                       "message":comment.message,
-                       "date":timedate,
-                       "time":timetime})
-            i+=1
-            if i > 10:
-                break
+
+                disp_graph.append({"label": s+ampm,
+                                       "value": location[0].hour_averages[r % 24].value,
+                                       "color": rgbCalc(location[0].hour_averages[r % 24].value)})
+
+            comments = location[0].messageList
+            ca = []
+            graph_color_val = 0
+            if (hr - now_eastern(location[0].lastUpdated).hour) < 1 and (hr - now_eastern(location[0].lastUpdated).hour) >= 0:
+                graph_color_val = location[0].currentValue
+            else:
+                graph_color_val = val
+
+            comments.reverse()
+            i = 0
+            for comment in comments:
+                ct = now_eastern(comment.time)
+                timedate = ct.strftime('%m/%d/%y')
+                timetime = ct.strftime('%I:%M %p')
+                ca.append({"user":str(comment.user),
+                           "message":comment.message,
+                           "date":timedate,
+                           "time":timetime})
+                i+=1
+                if i > 10:
+                    break
 
 
-        lu = now_eastern(location[0].lastUpdated).strftime('%m/%d/%y at %I:%M:%S %p')
+            lu = now_eastern(location[0].lastUpdated).strftime('%m/%d/%y at %I:%M:%S %p')
 
-        favs = []
-        if p.favorite:
-            favs = p.favorite
-        renderTemplate(self,'static-information-page.html', {
-            "graph_val_col": graph_color_val,
-            "location_name": location[0].name,
-            "location_latlng": lat_long,
-            "location_lat": lat,
-            "location_lng": lng,
-            "title_link": '/account',
-            "around": around,
-            "about": about,
-            "add": add,
-            "log": p.name,
-            "recentValue": location[0].currentValue,
-            "businessValue": val,
-            "last_updated": lu,
-            "locality": l,
-            "ca": ca,
-            "favorites": p.favorite,
-            "graph": disp_graph
-        })
+            favs = []
+            if p.favorite:
+                favs = p.favorite
+            renderTemplate(self,'static-information-page.html', {
+                "graph_val_col": graph_color_val,
+                "location_name": location[0].name,
+                "location_latlng": lat_long,
+                "location_lat": lat,
+                "location_lng": lng,
+                "title_link": '/account',
+                "around": around,
+                "about": about,
+                "add": add,
+                "log": p.name,
+                "recentValue": location[0].currentValue,
+                "businessValue": val,
+                "last_updated": lu,
+                "locality": l,
+                "ca": ca,
+                "favorites": p.favorite,
+                "graph": disp_graph
+            })
 
 
 class PostComment(webapp2.RequestHandler):
@@ -391,7 +396,7 @@ class CreateLocation(webapp2.RequestHandler):
                 search.TextField(name='address', value= self.request.get('address'))
             ])
         try:
-            index = search.Index(name="LocationsIndex")
+            index = search.Index(name="LocationIndexes")
             index.put(my_document)
         except search.Error:
             print("ERROR")
