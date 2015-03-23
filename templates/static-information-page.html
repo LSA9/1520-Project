@@ -143,9 +143,10 @@
                 <ul>
                     <li>
                             <div class="comment" style="background-color: #E0E0E0;">
-                                <form method="post" action="/comment/details/{{ location_lat }}/{{ location_lng }}">
+                                <form method="post" action="/comment/details/{{ location_lat }}/{{ location_lng }}" id="cmt-form">
                                 <div class="comment-user" style="text-align: center; padding-top: 0px;"><span style="font-size: 14pt;">Create Comment</span></div>
-                                <div class="comment-content"  style="padding:0;"><input type="text" style="height: 54px;width:60%;" name="msg"><input type="submit" value="Create" style="height: 60px; width:80px;"></div>
+                                <div class="comment-content"  style="padding:0;"><input type="text" style="height: 54px;width:60%;" value="" name="msg" id="msg">
+                                    <input id="cmt-sbmt" type="submit" value="Create" style="height: 60px; width:80px;"></div>
                                 </form>
                             </div>
                     </li>
@@ -193,6 +194,7 @@
     </div>-->
 </footer>
 <script src="../../js/vendor/jquery-1.10.2.min.js"></script>
+<script src="../../js/vendor/jquery.validate.min.js"></script>
 <script src="../../js/plugins.js"></script>
 <script src="../../js/main.js"></script>
 <script src="../../js/vendor/popup.js"></script>
@@ -262,6 +264,35 @@
         document.getElementById("range").innerHTML = newValue;
     }
     $(document).ready(function () {
+        $("#cmt-form").validate({
+            rules: {
+                msg: {
+                    required: true,
+                    minlength: 2,
+                    maxlength: 150
+                }
+
+            },
+            messages: {
+                msg: {
+                    minlength:
+                    "<span style='width: 500px;float: left; top: 565px; left: 38px; position: absolute; background-color: #EF5350; padding: 5px; padding-right: 10px;'>" +
+                    "<i class='icon-attention'></i>Please give us something between 2 & 150 letters as a comment." +
+                    "</span>",
+                    maxlength:
+                    "<span style='width: 500px;float: left; top: 565px; left: 38px; position: absolute; background-color: #EF5350; padding: 5px; padding-right: 10px;'>" +
+                    "<i class='icon-attention'></i>Please give us something between 2 & 150 letters as a comment." +
+                    "</span>",
+                    required:
+                    "<span style='width: 500px;float: left; top: 565px; left: 38px; position: absolute; background-color: #EF5350; padding: 5px; padding-right: 10px;'>" +
+                    "<i class='icon-attention'></i>Please give us something between 2 & 150 letters as a comment." +
+                    "</span>"
+                }
+            },
+            submitHandler: function (form) {
+                form.submit();
+            }
+        });
         $("#recent").css("color", rgbCalc({{ recentValue }}));
         $("#typical").css("color", rgbCalc({{ businessValue }}));
         function screenWidthResolver(){
@@ -337,6 +368,7 @@
             }
         });
     });
+
      historicalBarChart = [
         {
             key: "Time",
