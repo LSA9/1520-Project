@@ -26,6 +26,7 @@
         <div id="logo">
             <i class="icon-users" style="font-size: 36pt;"></i> Gaggle
         </div>
+        {% if nickname %}
 		<div id="link-list">
             <ul>
                 <li>
@@ -41,6 +42,7 @@
                 </li>
             </ul>
         </div>
+        {% endif %}
         <div id="rt">
             <div id="user">
                 <a href="{{account}}">{{name}} <i class="icon-user" style="font-size: 24pt;"></i></a>
@@ -71,6 +73,7 @@
                     </div>
                     <br>
 					&nbsp;&nbsp;&nbsp;&nbsp;<input style="background-color: #9e9e9e; border: solid #737373 thin; " type="text" value="" name="update" id="update">
+                    <input type="text" style="display:none;" name="lat_long" id="latlng" value="{{ll}}">
                     <br><br>
 					&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" value="Update Profile"> 
                 </form>
@@ -79,8 +82,7 @@
                 <hr>
 
 				<a href={{logout}} style="width: 100px; background-color: #d3d3d3;text-decoration:none;">
-                    <h1 style="text-decoration:none; background-color: #d3d3d3; height: 50px;">
-                        <i class="icon-left-open" style="font-size: 14pt;"></i>Log Out</h1>
+                    <h1 style="text-decoration:none; background-color: #d3d3d3; height: 50px;">Log Out</h1>
                 </a>
             </div>
         </div>
@@ -126,7 +128,7 @@
                 update: {
                     required:
                     "<span style='float: left; top: 130px; left: 0px; position: absolute; background-color: #EF5350; padding: 5px; padding-right: 10px;'>" +
-                    "<i class='icon-attention'></i>Please search and selecting a pin for your home location." +
+                    "<i class='icon-attention'></i>Please search and select a pin for your home location." +
                     "</span>"
                 }
             },

@@ -44,7 +44,8 @@ class MainPage(webapp2.RequestHandler):
             q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
             p=q.get()			
             if not p:               
-                self.redirect('/account')			
+                self.redirect('/account')
+                return
             else:
 			    self.redirect('/search')
 
@@ -122,6 +123,9 @@ class SearchPage(webapp2.RequestHandler):
         mail=user.email()
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
+        if not p:
+            self.redirect('/account')
+            return
         title_link=('/account')
         favs = []
         for f in p.favorite:
@@ -189,6 +193,9 @@ class DetailsPage(webapp2.RequestHandler):
             self.redirect('/')
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
+        if not p:
+            self.redirect('/account')
+            return
         # lat = 40.442606
         # lng = -79.956686
         lat_long ='('+lat+', ' + lng+')';
@@ -291,6 +298,9 @@ class PostComment(webapp2.RequestHandler):
         mail=user.email()
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
+        if not p:
+            self.redirect('/account')
+            return
         mp = MessagePost(parent=location[0].key,user=p.name, time=datetime.datetime.now(), message=self.request.get("msg"))
         ml = len(location[0].messageList)
         location[0].messageList.append(mp)
@@ -313,18 +323,24 @@ class ProcessForm(webapp2.RequestHandler):
         mail=user.email()
         global around,about,add
         nname = self.request.get('username')
-        nhome = self.request.get('lat_long')
+        nhome = ""
+        if self.request.get('lat_long') != "undefined" and self.request.get('lat_long') and self.request.get('lat_long')!= '':
+            nhome = self.request.get('lat_long')
+
         q=ndb.gql("SELECT * FROM Account WHERE email = :1", mail)
         p=q.get()
         coord=nhome
         log=nname
         favs = []
         if not p:
+            if nhome == "":
+                nhome = "(40.442606, -79.956686)"
             u=Account(email=user.email(), name=nname, home=nhome, favorite=[])
             u.put()
         else:
+            if nhome != "":
+                p.home=nhome
             p.name=nname
-            p.home=nhome
             p.put()
 
             for f in p.favorite:
@@ -333,7 +349,7 @@ class ProcessForm(webapp2.RequestHandler):
                 if len(location) != 0 and location:
                     favs.append(location[0])
 
-        renderTemplate(self,'static-search-page.html', {
+        renderTemplate(self, 'static-search-page.html', {
             "title_link": '/account',
             "favorites": favs,
             "around": around,
@@ -342,6 +358,7 @@ class ProcessForm(webapp2.RequestHandler):
             "add": add,
             "coord": coord,
         })
+
 
 
 class CreateLocation(webapp2.RequestHandler):
@@ -355,6 +372,9 @@ class CreateLocation(webapp2.RequestHandler):
         mail = user.email()
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p = q.get()
+        if not p:
+            self.redirect('/account')
+            return
         name=p.name
         title_link=('/account')
         renderTemplate(self,'static-location-creation-page.html', {
@@ -489,6 +509,8 @@ class AsyncFavoriteAdd(webapp2.RequestHandler):
         if p:
             p.favorite.append("(" + self.request.get("lat") + ", " + self.request.get("lng") + ")")
             p.put()
+        else:
+            self.redirect('/')
 
 
 
@@ -520,6 +542,9 @@ class UpdateDetails(webapp2.RequestHandler):
         mail=user.email()
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
+        if not p:
+            self.redirect('/account')
+            return
         nw = datetime.datetime.now()
         bv = BusinessValue(parent=location[0].key, value=int(self.request.get("crowdlvl")), time=nw, user=user)
         bl = len(location[0].businessValues)
