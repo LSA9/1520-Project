@@ -35,9 +35,13 @@
             <style>
                 #lnk {
                     background-image: url('/img/Red-signin-Long-base-44dp.png');
+                    background-size: contain;
+                    background-repeat: no-repeat;
                     width: 100%; height: 100px;
                 }
                 #lnk:hover {
+                    background-size: contain;
+                    background-repeat: no-repeat;
                     background-image: url('/img/Red-signin-Long-hover-44dp.png');
                     width: 100%; height: 100px;
                 }
@@ -49,7 +53,7 @@
                     <div id="login-field">
                         <div class="title">{{title}}<br><hr></div>
 							<br>
-                            <a href="{{link}}" style="width: 100%; height: 80px;" >
+                            <a id="lg" href="{{link}}" style="width: 100%; height: 80px;" >
 							<h1 id="lnk">
                             </h1>
                             </a>
@@ -78,6 +82,21 @@
 
         <script>
             $(document).ready(function () {
+                function screenWidthResolver(){
+                    if($(window).width() <= 900){
+                        $("#center-xy").css("width", $(window).width()-30);
+                        $("#menu-bar").css("height", "200px");
+                        $("#rt").css("float", "none");
+                        $("#rt").css("padding-left", "15px");
+                    }else{
+                        $("#center-xy").css("width", "500px");
+                        $("#menu-bar").css("height", "65px");
+                        $("#rt").css("float", "right");
+                        $("#rt").css("padding-left", "0px");
+                    }
+                }
+                screenWidthResolver();
+                $(window).on("resize", screenWidthResolver);
                 $("#lnk").on('mouseenter',function(){
 
                 });

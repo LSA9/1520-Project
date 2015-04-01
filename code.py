@@ -120,6 +120,9 @@ class SearchPage(webapp2.RequestHandler):
         global around
         global add
         user=users.get_current_user()
+        if not user:
+            self.redirect('/')
+            return
         mail=user.email()
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
@@ -191,6 +194,7 @@ class DetailsPage(webapp2.RequestHandler):
             mail=user.email()
         else:
             self.redirect('/')
+            return
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
         if not p:
@@ -205,10 +209,10 @@ class DetailsPage(webapp2.RequestHandler):
             self.redirect(add)
         else:
             val = 0
-            hLatBound = float(lat) + .050
-            lLatBound = float(lat) - .050
-            hLngBound = float(lng) + .050
-            lLngBound = float(lng) - .050
+            hLatBound = float(lat) + .010
+            lLatBound = float(lat) - .010
+            hLngBound = float(lng) + .010
+            lLngBound = float(lng) - .010
             qry1 = Location.query()
             qry2 = qry1.filter(Location.latitude > lLatBound)
             qry3 = qry2.filter(Location.latitude < hLatBound)
@@ -295,6 +299,9 @@ class PostComment(webapp2.RequestHandler):
         query = Location.query(Location.locationInfo == lat_long)
         location = query.fetch()
         user=users.get_current_user()
+        if not user:
+            self.redirect('/')
+            return
         mail=user.email()
         q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
         p=q.get()
@@ -319,6 +326,9 @@ class PostComment(webapp2.RequestHandler):
 class ProcessForm(webapp2.RequestHandler):
     def post(self):
         user=users.get_current_user()
+        if not user:
+            self.redirect('/')
+            return
         log=user.nickname()
         mail=user.email()
         global around,about,add
@@ -367,6 +377,9 @@ class CreateLocation(webapp2.RequestHandler):
         global around
         global add
         user=users.get_current_user()
+        if not user:
+            self.redirect('/')
+            return
         if not user:
             self.redirect('/')
         mail = user.email()
@@ -440,6 +453,9 @@ class UpdateAccount(webapp2.RequestHandler):
         global around
         global add
         user=users.get_current_user()
+        if not user:
+            self.redirect('/')
+            return
         mail=user.email()
         if not user:
             self.redirect('/')
@@ -474,6 +490,9 @@ class AboutUs(webapp2.RequestHandler):
         global around
         global add
         user=users.get_current_user()
+        if not user:
+            self.redirect('/')
+            return
         mail=user.email()
         if not user:
             self.redirect('/')
@@ -501,6 +520,9 @@ class AsyncFavoriteAdd(webapp2.RequestHandler):
         global around
         global add
         user=users.get_current_user()
+        if not user:
+            self.redirect('/')
+            return
         mail=user.email()
         if not user:
             self.redirect('/')
@@ -539,8 +561,11 @@ class UpdateDetails(webapp2.RequestHandler):
         query = Location.query(Location.locationInfo == lat_long)
         location = query.fetch()
         user=users.get_current_user()
+        if not user:
+            self.redirect('/')
+            return
         mail=user.email()
-        q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
+        q=ndb.gql("SELECT * FROM Account WHERE email = :1", mail)
         p=q.get()
         if not p:
             self.redirect('/account')

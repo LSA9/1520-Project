@@ -99,6 +99,17 @@
 
 <script>
     $(document).ready(function () {
+        function screenWidthResolver(){
+            if($(window).width() <= 900){
+                $("#menu-bar").css("height", "200px");
+                $("#center-xy").css("width", $(window).width()-30);
+            }else{
+                $("#menu-bar").css("height", "65px");
+                $("#center-xy").css("width", "300px");
+            }
+        }
+        screenWidthResolver();
+        $(window).on("resize", screenWidthResolver);
         $("#address").focus(function() {
             $(this).blur();
         });

@@ -61,11 +61,11 @@
             <div id="loc-info">
 
                 {% if location_latlng not in favorites %}
-                    <span id="fav" style="position: absolute; z-index: 30; cursor: pointer; padding-left: 5px; float: left; font-size: 8pt; vertical-align: middle; color: #9e9e9e;"><i id="fav_ic" class="icon-toggle-off" style="font-size: 16pt;"></i><br>Add to Favorites</span>
+                    <span id="fav" style="position: absolute; z-index: 30; cursor: pointer; padding-left: 5px; float: left; font-size: 8pt; vertical-align: middle; color: #9e9e9e;"><i id="fav_ic" class="icon-toggle-off" style="font-size: 16pt;"></i><br>Favorite</span>
                 {% else %}
                     <span id="no_fav" style="position: absolute; z-index: 30; padding-left: 5px; float: left; font-size: 8pt;vertical-align: middle;color: #FFB300;"><i class="icon-toggle-on" style="font-size: 16pt; float: left;"></i><br>Favorited</span>
                 {% endif %}
-                <div class="title">{{location_name}}<br>
+                <div class="title" style="font-size: 2em;">{{location_name}}<br>
                     <hr>
                 </div>
                     <table style="align-content: center; text-align: center; width: 100%; font-size: 14pt; color: #444444;">
@@ -74,21 +74,23 @@
                                 <strong>Most Recent Crowd Level</strong><div id="crd-lvl" style="display: inline;font-weight: bolder;"><br><span id="recent" style="padding-left:0em; font-size: 26pt;">{{ recentValue }}</span> </div>
                             </td>
                             <td style="border-left: solid #999999 1px;border-bottom: solid #999999 1px;width: 50%; padding: 8px;">
-                                <strong>Typical Crowd Level at this time</strong><div id="crd-lvl-typical" style="display: inline;font-weight: bolder;"><br><span id="typical" style="padding-left:0em;font-size: 26pt;">{{ businessValue }}</span></div>
+                                <strong>Last Updated</strong><br><span style="padding-left:0em;font-size: 26pt;"></span><span style="padding-left:0em;font-size: 14pt;">{{ last_updated }}</span>
                             </td>
                         </tr>
                         <tr style="border-top: solid #999999 1px;">
                             <td colspan="2" style="padding: 8px;">
-                                <strong>Last Updated</strong><br><span style="padding-left:0em;font-size: 14pt;">{{ last_updated }}</span>
+                                <strong>Typical Crowd Level at this Time</strong><div id="crd-lvl-typical" style="display: inline;font-weight: bolder;"><br><span id="typical" style="padding-left:0em;font-size: 26pt;">{{ businessValue }}</span></div>
                             </td>
                         </tr>
                         <tr style="border-top: solid #999999 1px">
                             <td colspan="2" style="padding: 8px;">
-                                <button class="my_popup_open" style="margin-left: 0px; width: 150px; height: 50px;" onclick="setlatlong()">Update</button>
+                                <button class="my_popup_open" style="margin-left: 0px; width: 150px; height: 50px;z-index: 200;">Update</button>
                                 <div id="my_popup" style="display: none;">
                                     <div class="modal">
                                         <form method="post" action="/post/details/{{ location_lat }}/{{ location_lng }}"> <!--Leonard Aronson 2/12/15: added action-->
-                                            How crowded is it?
+                                            <br><br>
+                                            <strong>How crowded is it?</strong>
+                                            <br>
                                             <input name="crowdlvl" title="( 0 being as crowded as Taiwan Cafe and 10 being as crowded as a subway car in Japan during rush hour )" id="crowd-slide" type="range" width="100px" step="1" max="5" min="0" value="2"/>
                                             <span id="range" style="margin-left: 10px; font-size: 18pt; font-weight: bolder; position: fixed;">2</span><br>
                                             <input type="submit" value="Submit">
@@ -144,7 +146,7 @@
                     <li>
                             <div class="comment" style="background-color: #E0E0E0;">
                                 <form method="post" action="/comment/details/{{ location_lat }}/{{ location_lng }}" id="cmt-form">
-                                <div class="comment-user" style="text-align: center; padding-top: 0px;"><span style="font-size: 14pt;">Create Comment</span></div>
+                                <div class="comment-user" id="crtinf" style="text-align: center; padding-top: 0px;"><span style="font-size: 14pt;">Create Comment</span></div>
                                 <div class="comment-content"  style="padding:0;"><input type="text" style="height: 54px;width:60%;" value="" name="msg" id="msg">
                                     <input id="cmt-sbmt" type="submit" value="Create" style="height: 60px; width:80px;"></div>
                                 </form>
@@ -156,8 +158,8 @@
                     {% for message in ca %}
                     <li>
                         <div class="comment">
-                            <div class="comment-user"><i class="icon-user" style="font-size: .8vw"></i>{{ message.user }}</div>
-                            <div class="comment-info" style="font-size: .6vw">{{message.date}}<br>{{message.time}}</div>
+                            <div class="comment-user"><i class="icon-user" style="font-size: 1em;"></i>{{ message.user }}</div>
+                            <div class="comment-info" style="font-size: .5em;">{{message.date}}<br>{{message.time}}</div>
                             <div class="comment-content">{{message.message}}</div>
                         </div>
                     </li>
@@ -203,8 +205,10 @@
 <script>
     function initialize() {
       var mapProp = {
+          draggable: false,
         center:new google.maps.LatLng{{location_latlng}},
-        zoom:18,
+        zoom: 17,
+        scrollwheel: false,
         mapTypeId:google.maps.MapTypeId.ROADMAP
       };
       var map=new google.maps.Map(document.getElementById("googleMap"), mapProp);
@@ -297,15 +301,28 @@
         $("#typical").css("color", rgbCalc({{ businessValue }}));
         function screenWidthResolver(){
             if($(window).width() <= 900){
-                $("#top-left").css("width", $(window).width()-20);
-                $("#top-right").css("width", $(window).width()-20);
-                $("#googleMap").css("width", $(window).width()-20);
-                $("#bottom-center").css("width", $(window).width()-20);
+                $("#top-left").css("width", $(window).width()-30);
+                $("#top-left").css("height", $(window).height()-100);
+                $("#top-right").css("width", $(window).width()-30);
+                $("#googleMap").css("width", $(window).width()-30);
+                $("#bottom-center").css("width", $(window).width()-30);
+                $("#menu-bar").css("height", "200px");
+                $("#rt").css("float", "none");
+                $("#crtinf").css("display","none");
+                $("#search").css("width", "50%");
+                $("#search-bar").css("width", "50%");
+                $("#rt").css("padding-left", "5px");
             }else{
+                $("#top-left").css("height", "450px");
+                $("#crtinf").css("display","inline-block");
                 $("#top-left").css("width", "45%");
                 $("#top-right").css("width", "45%");
                 $("#googleMap").css("width", "45%");
                 $("#bottom-center").css("width", "96%");
+                $("#menu-bar").css("height", "65px");
+                $("#search-bar").css("width", "70%");
+                  $("#rt").css("float", "right");
+                $("#rt").css("padding-left", "0px");
             }
         }
         screenWidthResolver();

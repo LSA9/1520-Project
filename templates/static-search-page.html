@@ -140,6 +140,19 @@
         return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
     }
     $(document).ready(function () {
+        function screenWidthResolver(){
+            if($(window).width() <= 900){
+                $("#menu-bar").css("height", "125px");
+                $("#googleMap").css("top", "126px");
+                $(".title").css("display","none");
+            }else{
+                $("#menu-bar").css("height", "65px");
+                $("#googleMap").css("top", "70px");
+                $(".title").css("display","block");
+            }
+        }
+        screenWidthResolver();
+        $(window).on("resize", screenWidthResolver);
         var c = 0;
         $("#search-bar-content").on('input', function () {
             c++;

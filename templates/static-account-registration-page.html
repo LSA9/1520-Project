@@ -112,6 +112,21 @@
 
 <script>
     $(document).ready(function () {
+        function screenWidthResolver(){
+                    if($(window).width() <= 900){
+                        $("#center-xy").css("width", $(window).width()-30);
+                        $("#menu-bar").css("height", "200px");
+                        $("#rt").css("float", "none");
+                        $("#rt").css("padding-left", "15px");
+                    }else{
+                        $("#center-xy").css("width", "500px");
+                        $("#menu-bar").css("height", "65px");
+                        $("#rt").css("float", "right");
+                        $("#rt").css("padding-left", "0px");
+                    }
+        }
+        screenWidthResolver();
+        $(window).on("resize", screenWidthResolver);
         $("#update").focus(function() {
             $(this).blur();
         });
