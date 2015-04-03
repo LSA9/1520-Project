@@ -9,7 +9,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Gaggle - {{ location_name }}</title>
     <meta name="description" content="Location based, crowd reporting system">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <meta name="theme-color" content="#607D8B">
     <link rel="stylesheet" href="../../css/1502.css">
     <link rel="stylesheet" href="../../css/normalize.css">
@@ -302,11 +302,11 @@
         $("#typical").css("color", rgbCalc({{ businessValue }}));
         function screenWidthResolver(){
             if($(window).width() <= 900){
-                $("#top-left").css("width", $(window).width()-30);
+                $("#top-left").css("width", $(window).width()-15);
                 $("#top-left").css("height", "600px");
-                $("#top-right").css("width", $(window).width()-30);
-                $("#googleMap").css("width", $(window).width()-30);
-                $("#bottom-center").css("width", $(window).width()-30);
+                $("#top-right").css("width", $(window).width()-15);
+                $("#googleMap").css("width", $(window).width()-15);
+                $("#bottom-center").css("width", $(window).width()-15);
                 $("#menu-bar").css("height", "200px");
                 $("#rt").css("float", "none");
                 $("#crtinf").css("display","none");
