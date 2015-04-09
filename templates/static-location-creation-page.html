@@ -155,13 +155,16 @@
                 mapTypeId: google.maps.MapTypeId.ROADMAP
             };
             var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
-
+			var southWest = new google.maps.LatLng( 40.360903, -80.149415 );
+			var northEast = new google.maps.LatLng( 40.514290, -79.853128 );
+			var cityBounds = new google.maps.LatLngBounds( southWest, northEast );
             var options = {
+			  bounds: cityBounds,	 
               types: ['establishment']
             };
             var input = (document.getElementById('pac-input'));
             var autocomplete = new google.maps.places.Autocomplete(input,options);
-            autocomplete.bindTo('bounds', map);
+            //autocomplete.bindTo('bounds', map);
 
             map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
