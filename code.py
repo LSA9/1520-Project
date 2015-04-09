@@ -308,20 +308,22 @@ class PostComment(webapp2.RequestHandler):
         if not p:
             self.redirect('/account')
             return
-        mp = MessagePost(parent=location[0].key,user=p.name, time=datetime.datetime.now(), message=self.request.get("msg"))
-        ml = len(location[0].messageList)
-        location[0].messageList.append(mp)
-        location[0].put()
-        i = 0
-        query = MessagePost.query(ancestor=location[0].key)
-        l_ec = query.fetch()
-        while ml < len(l_ec):
-            query = MessagePost.query(ancestor=location[0].key)
-            l_ec = query.fetch()
-            if i > 100:
-                break
-            i+=1
-        self.redirect("/details/"+lat+"/"+lng)
+        temp=self.request.get("msg")
+        if(len(temp)>1 and len(temp<151)):		
+             mp = MessagePost(parent=location[0].key,user=p.name, time=datetime.datetime.now(), message=self.request.get("msg"))
+             ml = len(location[0].messageList)
+             location[0].messageList.append(mp)
+             location[0].put()
+             i = 0
+             query = MessagePost.query(ancestor=location[0].key)
+             l_ec = query.fetch()
+             while ml < len(l_ec):
+                 query = MessagePost.query(ancestor=location[0].key)
+                 l_ec = query.fetch()
+                 if i > 100:
+                     break
+                 i+=1
+             self.redirect("/details/"+lat+"/"+lng)
 
 class ProcessForm(webapp2.RequestHandler):
     def post(self):
@@ -570,29 +572,30 @@ class UpdateDetails(webapp2.RequestHandler):
         if not p:
             self.redirect('/account')
             return
-        nw = datetime.datetime.now()
-        bv = BusinessValue(parent=location[0].key, value=int(self.request.get("crowdlvl")), time=nw, user=user)
-        bl = len(location[0].businessValues)
-        location[0].lastUpdated = datetime.datetime.now()
-        location[0].currentValue = int(self.request.get("crowdlvl"))
-        location[0].businessValues.append(bv)
-        logging.warning(str(location[0].hour_averages[int(now_eastern(nw).hour % 24)].value))
-        location[0].hour_averages[int(now_eastern(nw).hour % 24)].value = (location[0].hour_averages[int(now_eastern(nw).hour % 24)].count * location[0].hour_averages[int(now_eastern(nw).hour % 24)].value +
+        if(self.request.get("crowdlvl")<6 and self.request.get("crowdlvl">0)):
+             nw = datetime.datetime.now()
+             bv = BusinessValue(parent=location[0].key, value=int(self.request.get("crowdlvl")), time=nw, user=user)
+             bl = len(location[0].businessValues)
+             location[0].lastUpdated = datetime.datetime.now()
+             location[0].currentValue = int(self.request.get("crowdlvl"))
+             location[0].businessValues.append(bv)
+             logging.warning(str(location[0].hour_averages[int(now_eastern(nw).hour % 24)].value))
+             location[0].hour_averages[int(now_eastern(nw).hour % 24)].value = (location[0].hour_averages[int(now_eastern(nw).hour % 24)].count * location[0].hour_averages[int(now_eastern(nw).hour % 24)].value +
                                                               int(self.request.get("crowdlvl")))/(location[0].hour_averages[int(now_eastern(nw).hour % 24)].count+1)
-        location[0].hour_averages[int(now_eastern(nw).hour % 24)].count += 1
-        logging.warning(str(location[0].hour_averages[int(now_eastern(nw).hour % 24)].count) + " " + str(location[0].hour_averages[int(now_eastern(nw).hour % 24)].value))
-        location[0].put()
-        query = BusinessValue.query(ancestor=location[0].key)
-        l_ec = query.fetch()
-        i = 0
+             location[0].hour_averages[int(now_eastern(nw).hour % 24)].count += 1
+             logging.warning(str(location[0].hour_averages[int(now_eastern(nw).hour % 24)].count) + " " + str(location[0].hour_averages[int(now_eastern(nw).hour % 24)].value))
+             location[0].put()
+             query = BusinessValue.query(ancestor=location[0].key)
+             l_ec = query.fetch()
+             i = 0
 
-        while bl < len(l_ec):
-            query = BusinessValue.query(ancestor=location[0].key)
-            l_ec = query.fetch()
-            if i > 100:
-                break
-            i += 1
-        self.redirect("/details/"+lat+"/"+lng)
+             while bl < len(l_ec):
+                 query = BusinessValue.query(ancestor=location[0].key)
+                 l_ec = query.fetch()
+                 if i > 100:
+                     break
+                 i += 1
+             self.redirect("/details/"+lat+"/"+lng)
 
 
 class Account(ndb.Model):
