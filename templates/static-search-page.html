@@ -64,6 +64,34 @@
                 <span id="search-result-content"></span>
             </div>
         </div>
+        <div id="bottom-right">
+            <div id="favorites-list">
+                <table style="width: 100%;">
+                     <tr>
+                         <td colspan="3" style="text-align: center; font-weight: bolder; font-size: 18pt;">
+                             Favorites
+                         </td>
+                     </tr>
+                {% for f in favorites%}
+
+                    <tr class="click-row" id="{{ f.latitude }}{{ f.longitude }}" data-href="/details/{{ f.latitude }}/{{ f.longitude }}" value="{{ f.locationInfo }}">
+
+                        <td>
+                                 <i class="icon-right-open"></i>
+                        </td>
+                        <td>
+                                {{ f.name }}
+                        </td>
+                        <td>
+                                {{ f.currentValue }}
+                        </td>
+                         </a>
+                    </tr>
+
+                {% endfor %}
+                </table>
+            </div>
+        </div>
     </div>
 </content>
 <footer>
@@ -88,6 +116,7 @@
       };
       map=new google.maps.Map(document.getElementById("googleMap"), mapProp);
       {% for f in favorites %}
+            document.getElementById("{{ f.latitude }}{{ f.longitude }}").style.color = rgbCalc({{ f.currentValue }});
             var populationOptions = {
             strokeColor: '#FFB300',
             strokeOpacity: 1,
@@ -141,6 +170,24 @@
         return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
     }
     $(document).ready(function () {
+            var marker_fav;
+            $(".click-row").mouseenter(function () {
+                console.log($(this).attr("value"));
+                var mkloc = $(this).attr("value");
+                var lat = parseFloat(mkloc.substring(mkloc.indexOf("(") + 1, mkloc.indexOf(",")));
+                var long = parseFloat(mkloc.substring(mkloc.indexOf(", ") + 2, mkloc.indexOf(")")));
+                marker_fav = new google.maps.Marker({
+                    position: new google.maps.LatLng(lat, long),
+                    map: map,
+                    title: "Selected"
+                });
+                marker_fav.setVisible(true);
+                map.setCenter(new google.maps.LatLng(lat, long));
+            }).mouseleave(function () {
+                console.log($(this).attr("value"));
+                marker_fav.setVisible(false);
+            });
+
         function screenWidthResolver(){
             if($(window).width() <= 900){
                 $("#menu-bar").css("height", "125px");
@@ -154,6 +201,12 @@
         }
         screenWidthResolver();
         $(window).on("resize", screenWidthResolver);
+
+
+        $(".click-row").click(function() {
+            window.document.location = $(this).data("href");
+        });
+
         var c = 0;
         $("#search-bar-content").on('input', function () {
             c++;
