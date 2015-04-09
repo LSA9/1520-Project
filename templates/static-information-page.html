@@ -85,6 +85,17 @@
                         </tr>
                         <tr style="border-top: solid #999999 1px">
                             <td colspan="2" style="padding: 8px;">
+                               <!-- <form method="post" action="/post/details/{{ location_lat }}/{{ location_lng }}"> <!--Leonard Aronson 2/12/15: added action
+
+                                    <i class="icon-user" style="font-size: 24pt;" id="i1"></i>
+                                    <i class="icon-user" style="font-size: 24pt;" id="i2"></i>
+                                    <i class="icon-user" style="font-size: 24pt;" id="i3"></i>
+                                    <i class="icon-user" style="font-size: 24pt;" id="i4"></i>
+                                    <i class="icon-user" style="font-size: 24pt;" id="i5"></i>
+                                <span id="range" style="margin-left: 10px; font-size: 18pt; font-weight: bolder; position: fixed;">2</span><br>
+                                <input style="display: inline;" type="submit" value="Update" id="submit" style="width: 80px;"><br>
+                                </form>-->
+
                                 <button class="my_popup_open" style="margin-left: 0px; width: 150px; height: 50px;z-index: 200;">Update</button>
                                 <div id="my_popup" style="display: none;">
                                     <div class="modal">
@@ -133,7 +144,7 @@
         </div>
 
         <div id="top-right" style="box-shadow: 0 0 0; background-color: transparent;">
-					<div id="googleMap" style="box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);width:45%; height:450px; position: absolute;">
+					<div id="googleMap" style="box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);width:45%; height:485px; position: absolute;">
 
 					</div>
         </div>
@@ -206,7 +217,6 @@
 <script>
     function initialize() {
       var mapProp = {
-          draggable: false,
         center:new google.maps.LatLng{{location_latlng}},
         zoom: 17,
         scrollwheel: false,
@@ -314,7 +324,8 @@
                 $("#search-bar").css("width", "50%");
                 $("#rt").css("padding-left", "5px");
             }else{
-                $("#top-left").css("height", "450px");
+                $("#top-left").css("height", "485px");
+                $("#top-right").css("height", "485px");
                 $("#crtinf").css("display","inline-block");
                 $("#top-left").css("width", "45%");
                 $("#top-right").css("width", "45%");
@@ -359,7 +370,8 @@
         $("#crowd-slide").on('input', function () {
             var g = Math.floor(((5 - $("#crowd-slide").val()) / 5.0) * 255);
             var r = Math.floor((($("#crowd-slide").val()) / 5) * 255);
-            $("#range").html('<span style="color: rgb(' + r + ',' + g + ',0);">' + $("#crowd-slide").val() + '</span>')
+            $("#range").html('<span style="color: rgb(' + r + ',' + g + ',0);">' + $("#crowd-slide").val() + '</span>');
+            $("#submit").css("display", "inline");
         });
         // Initialize the plugin
             $('#my_popup').css('display', 'block');
