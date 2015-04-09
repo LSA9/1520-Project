@@ -598,6 +598,9 @@ class UpdateDetails(webapp2.RequestHandler):
                      break
                  i += 1
              self.redirect("/details/"+lat+"/"+lng)
+             return
+        else:
+            self.redirect("/")
 
 
 class Account(ndb.Model):
