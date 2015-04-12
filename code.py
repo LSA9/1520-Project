@@ -601,7 +601,7 @@ class UpdateDetails(webapp2.RequestHandler):
             self.redirect('/account')
             return
 
-        if (int(self.request.get("crowdlvl")) <6 and int(self.request.get("crowdlvl")) > 0):
+        if (int(self.request.get("crowdlvl")) <6 and int(self.request.get("crowdlvl")) >= 0):
             nw = datetime.datetime.now()
             bv = BusinessValue(parent=location[0].key, value=int(self.request.get("crowdlvl")), time=nw, user=user)
             bl = len(location[0].businessValues)
