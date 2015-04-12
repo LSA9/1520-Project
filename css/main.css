@@ -259,8 +259,8 @@ button:hover,input[type="submit"]:hover {
     position: absolute;
     bottom: 0;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
-    background-color: #9E9E9E;
-    opacity: .7;
+    background-color: #E0E0E0;
+    opacity: 1;
     font-size: 16pt;
     right: 0;
     margin-right: 30px;
@@ -272,7 +272,7 @@ button:hover,input[type="submit"]:hover {
     text-decoration: none;
 
 }
-#content #bottom-right:hover {
+#content .ho:hover {
     opacity: 1;
 }
 #content #bottom-right td {

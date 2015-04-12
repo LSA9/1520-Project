@@ -51,7 +51,7 @@
     </div>
 </header>
 <content>
-    <div id="content">
+    <div id="content" style="overflow-y: hidden;">
         <div id="googleMap" style="top: 70px;left:0; width: 100%; height:92vh;position: absolute;">
         </div>
         <div id="center-xy" style="z-index: 100; position: absolute; margin-left: 5%; width:300px; font-size: small;">
@@ -64,14 +64,15 @@
                 <span id="search-result-content"></span>
             </div>
         </div>
-        <div id="bottom-right">
-            <div id="favorites-list">
+
+        <div class="title" id="fav-btn" style="cursor: pointer;position: absolute;opacity: 1; bottom: 0; right: 0;margin-right: 30px;margin-bottom: 230px; width: 400px;">
+            Favorites<br>
+            <hr>
+        </div>
+        <div id="bottom-right" class="ho" style="overflow: auto;">
+            <div id="favorites-list" >
                 <table style="width: 100%;">
-                     <tr>
-                         <td colspan="3" style="text-align: center; font-weight: bolder; font-size: 18pt;">
-                             Favorites
-                         </td>
-                     </tr>
+
                 {% for f in favorites%}
 
                     <tr class="click-row" id="{{ f.latitude }}{{ f.longitude }}" data-href="/details/{{ f.latitude }}/{{ f.longitude }}" value="{{ f.locationInfo }}">
@@ -111,7 +112,7 @@
     function initialize() {
       var mapProp = {
         center:new google.maps.LatLng{{coord}},
-        zoom:15,
+        zoom:16,
         mapTypeId: google.maps.MapTypeId.ROADMAP
       };
       map=new google.maps.Map(document.getElementById("googleMap"), mapProp);
@@ -172,20 +173,23 @@
     $(document).ready(function () {
             var marker_fav;
             $(".click-row").mouseenter(function () {
-                console.log($(this).attr("value"));
-                var mkloc = $(this).attr("value");
-                var lat = parseFloat(mkloc.substring(mkloc.indexOf("(") + 1, mkloc.indexOf(",")));
-                var long = parseFloat(mkloc.substring(mkloc.indexOf(", ") + 2, mkloc.indexOf(")")));
-                marker_fav = new google.maps.Marker({
-                    position: new google.maps.LatLng(lat, long),
-                    map: map,
-                    title: "Selected"
-                });
-                marker_fav.setVisible(true);
-                map.setCenter(new google.maps.LatLng(lat, long));
+                if(!isHidden){
+                    console.log($(this).attr("value"));
+                    var mkloc = $(this).attr("value");
+                    var lat = parseFloat(mkloc.substring(mkloc.indexOf("(") + 1, mkloc.indexOf(",")));
+                    var long = parseFloat(mkloc.substring(mkloc.indexOf(", ") + 2, mkloc.indexOf(")")));
+                    marker_fav = new google.maps.Marker({
+                        position: new google.maps.LatLng(lat, long),
+                        map: map,
+                        title: "Selected"
+                    });
+                    marker_fav.setVisible(true);
+                    map.setCenter(new google.maps.LatLng(lat, long));
+                }
             }).mouseleave(function () {
-                console.log($(this).attr("value"));
-                marker_fav.setVisible(false);
+                if(!isHidden) {
+                    marker_fav.setVisible(false);
+                }
             });
 
         function screenWidthResolver(){
@@ -203,7 +207,21 @@
         }
         screenWidthResolver();
         $(window).on("resize", screenWidthResolver);
+        var isHidden = false;
 
+        $("#fav-btn").click(function(){
+            if(isHidden){
+                isHidden = false;
+                $("#fav-btn").animate({"bottom": '0px',"margin-bottom": '230px', "opacity": '1'});
+                $("#bottom-right").animate({"bottom": '0px',"margin-bottom": '30px', "opacity": '1'});
+
+            }else{
+                $("#bottom-right").animate({"bottom": '30px',"margin-bottom": '-230px', "opacity": '.7'});
+                $("#fav-btn").animate({"bottom": '0px',"margin-bottom": '10px', "opacity": '.7'});
+                isHidden = true;
+            }
+
+        });
 
         $(".click-row").click(function() {
             window.document.location = $(this).data("href");
