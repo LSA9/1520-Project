@@ -82,10 +82,10 @@
                 <h4>Contact Us</h4>
                 <form method="post" action="/about/contact" style="text-align: left; padding-left: 20px;">
                     Name:
-                    <br><input type="text" name="name"><br>
+                    <br><input type="text" id="msg-name" name="name"><br>
                     Email:
-                    <br><input type="text" name="email"><br>
-                    Message:<br><textarea name="content" style="width:455px;" rows="10"></textarea>
+                    <br><input type="text" id="msg-email" name="email"><br>
+                    Message:<br><textarea name="content" id="msg-content" style="width:455px;" rows="10"></textarea>
                     <br><br>
                     <input type="submit" value="Send">
                     <br><br>
@@ -105,6 +105,25 @@
 <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
 <script src="../js/plugins.js"></script>
 <script src="../js/main.js"></script>
+<script>
+     $(document).ready(function () {
+         function screenWidthResolver() {
+             if ($(window).width() <= 900) {
+                 $("#center-xy").css("width", $(window).width() - 30);
+                 $("#menu-bar").css("height", "200px");
+                 $("#msg-content").css("width", $(window).width()-80);
+
+             } else {
+                 $("#center-xy").css("width", "500px");
+                 $("#menu-bar").css("height", "65px");
+                 $("#msg-content").css("width", "455px");
+             }
+         }
+
+         screenWidthResolver();
+         $(window).on("resize", screenWidthResolver);
+     });
+</script>
 </body>
 </html>
 

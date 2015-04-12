@@ -35,15 +35,15 @@ class MainPage(webapp2.RequestHandler):
         type = ''
         message = ''
         log = ''
-        
+
         #p=q.get()
-    
+
 
         if user:
             mail=user.email()
             q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
-            p=q.get()			
-            if not p:               
+            p=q.get()
+            if not p:
                 self.redirect('/account')
                 return
             else:
@@ -70,7 +70,7 @@ class MainPage(webapp2.RequestHandler):
 
 class AsyncSearch(webapp2.RequestHandler):
     def get(self):
-        index = search.Index(name = "LocationIndexes")
+        index = search.Index(name = "LocationIndexDoc")
 
         results = index.search("name = " + self.request.get('search-value') + " OR address = " + self.request.get('search-value'))
         res = ""
@@ -137,7 +137,7 @@ class SearchPage(webapp2.RequestHandler):
             if len(location) != 0 and location:
                 favs.append(location[0])
         log=p.name
-        coord=p.home		
+        coord=p.home
         renderTemplate(self,'static-search-page.html', {
             "title_link": '/account',
             "around": around,
@@ -308,22 +308,22 @@ class PostComment(webapp2.RequestHandler):
         if not p:
             self.redirect('/account')
             return
-        temp=self.request.get("msg")
-        if(len(temp)>1 and len(temp<151)):		
-             mp = MessagePost(parent=location[0].key,user=p.name, time=datetime.datetime.now(), message=self.request.get("msg"))
-             ml = len(location[0].messageList)
-             location[0].messageList.append(mp)
-             location[0].put()
-             i = 0
-             query = MessagePost.query(ancestor=location[0].key)
-             l_ec = query.fetch()
-             while ml < len(l_ec):
-                 query = MessagePost.query(ancestor=location[0].key)
-                 l_ec = query.fetch()
-                 if i > 100:
-                     break
-                 i+=1
-             self.redirect("/details/"+lat+"/"+lng)
+        temp= self.request.get("msg")
+        if(len(temp)>1 and len(temp)<151):
+            mp = MessagePost(parent=location[0].key,user=p.name, time=datetime.datetime.now(), message=self.request.get("msg"))
+            ml = len(location[0].messageList)
+            location[0].messageList.append(mp)
+            location[0].put()
+            i = 0
+            query = MessagePost.query(ancestor=location[0].key)
+            l_ec = query.fetch()
+            while ml < len(l_ec):
+                query = MessagePost.query(ancestor=location[0].key)
+                l_ec = query.fetch()
+                if i > 100:
+                    break
+                i += 1
+            self.redirect("/details/"+lat+"/"+lng)
 
 class ProcessForm(webapp2.RequestHandler):
     def post(self):
@@ -402,6 +402,31 @@ class CreateLocation(webapp2.RequestHandler):
     @ndb.toplevel
     def post(self):
         global around
+        user=users.get_current_user()
+        if not user:
+            self.redirect('/')
+            return
+        if not user:
+            self.redirect('/')
+        mail = user.email()
+        q=ndb.gql("SELECT * FROM Account WHERE email = :1",mail)
+        p = q.get()
+        if not p:
+            self.redirect('/account')
+            return
+        name=p.name
+        if(not(re.match("^\((-?(?:1[0-7]|[1-9])?\d(?:\.\d{1,18})?|180(?:\.0{1,18})?), (-?(?:1[0-7]|[1-9])?\d(?:\.\d{1,18})?|180(?:\.0{1,18})?)\)",
+                        self.request.get('lat_long'))) and len(self.request.get('location_name')) == 0 and
+                   len(self.request.get('address')) == 0):
+            renderTemplate(self,'static-location-creation-page.html', {
+                "title_link": '/account',
+                "around": around,
+                "add": add,
+                "log": name,
+                "about": about
+            })
+            return
+
         lat = ""
         s = self.request.get('lat_long').find('(')
         e = self.request.get('lat_long').find(',', s)
@@ -410,8 +435,10 @@ class CreateLocation(webapp2.RequestHandler):
         e = self.request.get('lat_long').find(')', s)
         lng = round(float(self.request.get('lat_long')[s+1:e]), 6)
         lat_long = '(' + str(lat) + ', ' + str(lng) + ')'
+
         query = Location.query(Location.locationInfo == lat_long)
         location = query.fetch()
+
         if location:
             self.redirect('/details/'+str(lat)+'/'+str(lng))
         else:
@@ -423,19 +450,19 @@ class CreateLocation(webapp2.RequestHandler):
                 ha.append(HourAnalytic(value=0.0, hour=i, count=0, parent=loc.key))
             loc.hour_averages = ha
             loc.put()
-        my_document = search.Document(
-            # Setting the doc_id is optional. If omitted, the search service will create an identifier.
-            fields=[
-                search.TextField(name='locationInfo',value = lat_long),
-                search.TextField(name='name', value = self.request.get('location_name')),
-                search.TextField(name='address', value= self.request.get('address'))
-            ])
-        try:
-            index = search.Index(name="LocationIndexes")
-            index.put(my_document)
-        except search.Error:
-            print("ERROR")
-
+            my_document = search.Document(
+                # Setting the doc_id is optional. If omitted, the search service will create an identifier.
+                fields=[
+                    search.TextField(name='locationInfo',value = lat_long),
+                    search.TextField(name='name', value = self.request.get('location_name')),
+                    search.TextField(name='address', value= self.request.get('address'))
+                ])
+            try:
+                index = search.Index(name="LocationIndexDoc")
+                index.put(my_document)
+            except search.Error:
+                print("ERROR")
+            
         i = 0
         query = Location.query(Location.locationInfo == lat_long)
         location = query.fetch()
@@ -516,6 +543,7 @@ class AboutUs(webapp2.RequestHandler):
             "add": add,
         })
 
+
 class AsyncFavoriteAdd(webapp2.RequestHandler):
     def post(self):
         global about
@@ -573,32 +601,31 @@ class UpdateDetails(webapp2.RequestHandler):
             self.redirect('/account')
             return
 
-
         if (int(self.request.get("crowdlvl")) <6 and int(self.request.get("crowdlvl")) > 0):
-             nw = datetime.datetime.now()
-             bv = BusinessValue(parent=location[0].key, value=int(self.request.get("crowdlvl")), time=nw, user=user)
-             bl = len(location[0].businessValues)
-             location[0].lastUpdated = datetime.datetime.now()
-             location[0].currentValue = int(self.request.get("crowdlvl"))
-             location[0].businessValues.append(bv)
-             logging.warning(str(location[0].hour_averages[int(now_eastern(nw).hour % 24)].value))
-             location[0].hour_averages[int(now_eastern(nw).hour % 24)].value = (location[0].hour_averages[int(now_eastern(nw).hour % 24)].count * location[0].hour_averages[int(now_eastern(nw).hour % 24)].value +
+            nw = datetime.datetime.now()
+            bv = BusinessValue(parent=location[0].key, value=int(self.request.get("crowdlvl")), time=nw, user=user)
+            bl = len(location[0].businessValues)
+            location[0].lastUpdated = datetime.datetime.now()
+            location[0].currentValue = int(self.request.get("crowdlvl"))
+            location[0].businessValues.append(bv)
+            logging.warning(str(location[0].hour_averages[int(now_eastern(nw).hour % 24)].value))
+            location[0].hour_averages[int(now_eastern(nw).hour % 24)].value = (location[0].hour_averages[int(now_eastern(nw).hour % 24)].count * location[0].hour_averages[int(now_eastern(nw).hour % 24)].value +
                                                               int(self.request.get("crowdlvl")))/(location[0].hour_averages[int(now_eastern(nw).hour % 24)].count+1)
-             location[0].hour_averages[int(now_eastern(nw).hour % 24)].count += 1
-             logging.warning(str(location[0].hour_averages[int(now_eastern(nw).hour % 24)].count) + " " + str(location[0].hour_averages[int(now_eastern(nw).hour % 24)].value))
-             location[0].put()
-             query = BusinessValue.query(ancestor=location[0].key)
-             l_ec = query.fetch()
-             i = 0
+            location[0].hour_averages[int(now_eastern(nw).hour % 24)].count += 1
+            logging.warning(str(location[0].hour_averages[int(now_eastern(nw).hour % 24)].count) + " " + str(location[0].hour_averages[int(now_eastern(nw).hour % 24)].value))
+            location[0].put()
+            query = BusinessValue.query(ancestor=location[0].key)
+            l_ec = query.fetch()
+            i = 0
 
-             while bl < len(l_ec):
-                 query = BusinessValue.query(ancestor=location[0].key)
-                 l_ec = query.fetch()
-                 if i > 100:
-                     break
-                 i += 1
-             self.redirect("/details/"+lat+"/"+lng)
-             return
+            while bl < len(l_ec):
+                query = BusinessValue.query(ancestor=location[0].key)
+                l_ec = query.fetch()
+                if i > 100:
+                    break
+                i += 1
+            self.redirect("/details/"+lat+"/"+lng)
+            return
         else:
             self.redirect("/")
 
@@ -635,6 +662,7 @@ class Location(ndb.Model):
     currentValue = ndb.IntegerProperty(required=True)
     businessValues = ndb.StructuredProperty(BusinessValue, repeated=True)
     messageList = ndb.StructuredProperty(MessagePost, repeated=True)
+
 
 def now_eastern(tm):
     return datetime.datetime.fromtimestamp(time.mktime(tm.timetuple()), Eastern_tzinfo())
