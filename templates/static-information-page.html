@@ -291,15 +291,15 @@
             messages: {
                 msg: {
                     minlength:
-                    "<span style='width: 500px;float: left; top: 565px; left: 38px; position: absolute; background-color: #EF5350; padding: 5px; padding-right: 10px;'>" +
+                    "<span style='width: 100%;float: left; bottom: 0px; left: 0px; position: fixed; background-color: #EF5350; padding-bottom: 5px; padding-top: 5px; font-size: 1em;'>" +
                     "<i class='icon-attention'></i>Please give us something between 2 & 150 letters as a comment." +
                     "</span>",
                     maxlength:
-                    "<span style='width: 500px;float: left; top: 565px; left: 38px; position: absolute; background-color: #EF5350; padding: 5px; padding-right: 10px;'>" +
+                    "<span style='width: 100%;float: left; bottom: 0px; left: 0px; position: fixed; background-color: #EF5350; padding-bottom: 5px; padding-top: 5px; font-size: 1em;'>" +
                     "<i class='icon-attention'></i>Please give us something between 2 & 150 letters as a comment." +
                     "</span>",
                     required:
-                    "<span style='width: 500px;float: left; top: 565px; left: 38px; position: absolute; background-color: #EF5350; padding: 5px; padding-right: 10px;'>" +
+                    "<span style='width: 100%;float: left; bottom: 0px; left: 0px; position: fixed; background-color: #EF5350; padding-bottom: 5px; padding-top: 5px; font-size: 1em;'>" +
                     "<i class='icon-attention'></i>Please give us something between 2 & 150 letters as a comment." +
                     "</span>"
                 }
@@ -314,6 +314,7 @@
             if($(window).width() <= 900){
                 $("#top-left").css("width", $(window).width()-15);
                 $("#top-left").css("height", "600px");
+                $(".title").css("font-size", "1.5em");
                 $("#top-right").css("width", $(window).width()-15);
                 $("#googleMap").css("width", $(window).width()-15);
                 $("#bottom-center").css("width", $(window).width()-15);
@@ -324,6 +325,7 @@
                 $("#search-bar").css("width", "50%");
                 $("#rt").css("padding-left", "5px");
             }else{
+                $(".title").css("font-size", "2em");
                 $("#top-left").css("height", "485px");
                 $("#top-right").css("height", "485px");
                 $("#crtinf").css("display","inline-block");

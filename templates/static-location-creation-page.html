@@ -103,10 +103,15 @@
         function screenWidthResolver(){
             if($(window).width() <= 900){
                 $("#menu-bar").css("height", "200px");
+                $("#location-name-box").css("width", "245px");
+                $("#address").css("width", "240px");
                 $("#center-xy").css("width", $(window).width()-30);
             }else{
                 $("#menu-bar").css("height", "65px");
+                $("#location-name-box").css("width", "305px");
+                $("#address").css("width", "240px");
                 $("#center-xy").css("width", "500px");
+
             }
         }
         screenWidthResolver();
@@ -130,14 +135,13 @@
             messages: {
                 address: {
                     required:
-                    "<span style='float: left; top: 100px; left: 0px; position: absolute; background-color: #EF5350; padding: 5px; padding-right: 10px;'>" +
+                    "<span style='float: left; bottom: 0px; left: 0px; position: fixed; background-color: #EF5350; padding-top: 5px; padding-bottom: 5px; width: 100%;'>" +
                     "<i class='icon-attention'></i>Please select a pin from the map for the location" +
                     "</span>"
                 },
                 location_name: {
-                    required:
-                    "<span style='float: left; top: 100px; left: 0px; position: absolute; background-color: #EF5350; padding: 5px; padding-right: 10px;'>" +
-                    "</span>"
+                    required:""
+
                 }
             },
             submitHandler: function (form) {

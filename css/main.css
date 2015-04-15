@@ -285,7 +285,7 @@ button:hover,input[type="submit"]:hover {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
 }
 .title {
-    font-size: 2em;
+    font-size: 1.5em;
     font-weight: lighter;
     color: #9e9e9e;
     text-align: center;
